@@ -31,16 +31,10 @@ def main():
             now = datetime.datetime.now(JST)
             ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
             csvpath = os.path.join(results_dir_path, '4-1_ising_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
-            gamma, beta = optimize_by_gradient_descent(eval("get_expectation_ghz_l{}".format(length)),initial_gamma,initial_beta,alpha,delta_gamma,delta_beta ,iteration,True,csvpath)
-
-            print(gamma, beta)
-
-
-            t_delta = datetime.timedelta(hours=9)
-            JST = datetime.timezone(t_delta, 'JST')
-            now = datetime.datetime.now(JST)
-            ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
             tomlpath = os.path.join(results_dir_path, '4-1_ising_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
+
+            gamma, beta = optimize_by_gradient_descent(eval("get_expectation_ghz_l{}".format(length)),initial_gamma,initial_beta,alpha,delta_gamma,delta_beta ,iteration,True,csvpath)
+            print(gamma, beta)
 
             with open(tomlpath, mode='a') as f:
                 f.write("length       ={}\n".format(length))
