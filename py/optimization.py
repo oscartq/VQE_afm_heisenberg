@@ -19,17 +19,17 @@ def get_gradient(function, gamma: np.array, beta: np.array, delta_gamma, delta_b
     for index in range(gamma.size):
         center = gamma[index]
         gamma_edge[index] = gamma[index] - delta_gamma
-        e1 = function(gamma_edge, beta)
+        e1 = function(gamma=gamma_edge, beta=beta)
         gamma_edge[index] = gamma[index] + delta_gamma
-        e2 = function(gamma_edge, beta)
+        e2 = function(gamma=gamma_edge, beta=beta)
         grad_gamma[index] = (e2.real-e1.real)/(2*delta_gamma)
         gamma[index] = center
 
         center = beta[index]
         beta_edge[index] = beta[index] - delta_beta
-        e1 = function(gamma, beta_edge)
+        e1 = function(gamma=gamma, beta=beta_edge)
         beta_edge[index] = beta[index] + delta_beta
-        e2 = function(gamma, beta_edge)
+        e2 = function(gamma=gamma, beta=beta_edge)
         grad_beta[index] = (e2.real-e1.real)/(2*delta_beta)
         beta[index] = center
     
@@ -48,7 +48,7 @@ def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta
         grad_gamma, grad_beta = get_gradient(function, gamma, beta, delta_gamma, delta_beta, iter)
         gamma -= alpha * grad_gamma
         beta  -= alpha * grad_beta
-        energy = function(gamma, beta)
+        energy = function(gamma=gamma, beta=beta)
 
         record = [iter, energy]
         for index in range(gamma.size):
