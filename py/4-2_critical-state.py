@@ -8,21 +8,32 @@ from optimization import optimize_by_gradient_descent
 from functools import partial
 Pi=3.1415
 
-length = 8
-p = 4
-initial_gamma = np.array([0.5 for i in range(p)])
-initial_beta  = np.array([0.5 for i in range(p)])
-g = 1.0
-function_args = TFIMStateArgs(length, g)
 
-iteration = 10
-alpha = 0.01
-delta_gamma = 0.001
-delta_beta  = 0.001
+def optimize_critical_state(length, p, g):
+    initial_gamma = np.array([0.5 for i in range(p)])
+    initial_beta  = np.array([0.5 for i in range(p)])
+    function_args = TFIMStateArgs(length, g)
 
-print("exact energy: ")
-print(-1.28*length)
+    iteration = 10
+    alpha = 0.01
+    delta_gamma = 0.001
+    delta_beta  = 0.001
 
-gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration)
+    print("exact energy: ")
+    print(-1.28*length)
 
-print(gamma, beta)
+    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration)
+
+    print(gamma, beta)
+
+def main():
+    length_list = [4,8,10,12,14,16]
+    p_list = [1,2,3,4,5,6,7,8,9,10]
+    g = 1.0
+
+    for length in length_list:
+        for p in p_list:
+            optimize_critical_state(length, p, g)
+
+if __name__=='__main__':
+    main()
