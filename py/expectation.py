@@ -27,7 +27,8 @@ def get_expectation_critical_state(function_args, gamma, beta):
         value -= np.dot(vector2.conj(), vector)
     for i in range(function_args.length):
         circuit = anzats.circuit.copy()
-        circuit.append(function_args.g * cirq.X(qubits[i]))
+        # circuit.append(function_args.g * cirq.X(qubits[i]))
+        circuit.append(cirq.XPowGate(exponent=function_args.g).on(qubits[i]))
         vector2 = cirq.final_state_vector(circuit)
         value -= np.dot(vector2.conj(), vector)
     return value
