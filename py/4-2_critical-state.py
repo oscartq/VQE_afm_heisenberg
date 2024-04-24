@@ -1,6 +1,7 @@
 import os
 import datetime
 from functools import partial
+import tomllib
 
 import cirq
 import openfermion
@@ -45,18 +46,19 @@ def optimize_critical_state(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    length_list = [4]
-    p_list = [1,2,3]
-    length_list = [4,8,10]
-    p_list = [1,2,3,4,5,6,7,8,9,10]
-    g = 1.0
+    with open(".toml", mode="rb") as f:
+        config = tomllib.load(f)
+        print(config)
+    length_list = config["critical_state"]["length_list"]
+    p_list = config["critical_state"]["p_list"]
+    g = config["critical_state"]["g"]
+    alpha = config["critical_state"]["alpha"]
+    delta_gamma = config["critical_state"]["delta_gamma"]
+    delta_beta  =config["critical_state"]["delta_beta"]
+    iteration = config["critical_state"]["iteration"]
 
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta  = 0.001
-    iteration = 10
-
-    results_dir_path = os.path.join('.results')
+    results_dir_path = config["critical_state"]["results_dir_path"]
+    # results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
     t_delta = datetime.timedelta(hours=9)
