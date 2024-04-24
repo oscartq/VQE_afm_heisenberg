@@ -45,10 +45,10 @@ def optimize_tfim(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    length_list = [4]
-    p_list = [1,2,3]
-    # length_list = [4,8,10,12,14,16]
-    # p_list = [1,2,3,4,5,6,7,8,9,10]
+    # length_list = [4]
+    # p_list = [1,2,3]
+    length_list = [4,8,10]
+    p_list = [1,2,3,4,5,6,7,8,9,10]
     g = 1.0
 
     alpha = 0.01
