@@ -1,6 +1,7 @@
 import os
 import datetime
 from functools import partial
+import toml
 
 import cirq
 import openfermion
@@ -35,11 +36,11 @@ def optimize_critical_state(length,
 
     with open(tomlpath, mode='a') as f:
         f.write("length       ={}\n".format(length))
-        f.write("g            ={}\n".format(g))
         f.write("p            ={}\n".format(p))
+        f.write("g            ={}\n".format(g))
         f.write("alpha        ={}\n".format(alpha))
-        f.write("initial_gamma={}\n".format(initial_gamma))
-        f.write("initial_beta ={}\n".format(initial_beta))
+        f.write("initial_gamma={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_gamma.tolist()))+"]"))
+        f.write("initial_beta ={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_beta.tolist())) +"]"))
         f.write("delta_gamma  ={}\n".format(delta_gamma))
         f.write("delta_beta   ={}\n".format(delta_beta))
         f.write("iteration    ={}\n".format(iteration))
