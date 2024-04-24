@@ -49,7 +49,7 @@ def main():
     # p_list = [1,2,3]
     length_list = [4,8,10]
     p_list = [1,2,3,4,5,6,7,8,9,10]
-    g = 1.0
+    g = 0.8
 
     alpha = 0.01
     delta_gamma = 0.001
