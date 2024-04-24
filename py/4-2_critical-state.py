@@ -1,7 +1,6 @@
 import os
 import datetime
 from functools import partial
-import toml
 
 import cirq
 import openfermion
