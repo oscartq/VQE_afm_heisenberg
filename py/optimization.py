@@ -1,7 +1,13 @@
+import os 
+import sys
+import datetime
+import csv 
+
 import cirq
 import openfermion
 import numpy as np
-import datetime
+Pi=3.1415
+
 from anzats import Anzats
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
 # from optimization import get_gradient, optimize_by_gradient_descent
@@ -19,17 +25,17 @@ def get_gradient(function, gamma: np.array, beta: np.array, delta_gamma, delta_b
     for index in range(gamma.size):
         center = gamma[index]
         gamma_edge[index] = gamma[index] - delta_gamma
-        e1 = function(gamma=gamma_edge, beta=beta)
+        e1 = function(gamma_edge, beta)
         gamma_edge[index] = gamma[index] + delta_gamma
-        e2 = function(gamma=gamma_edge, beta=beta)
+        e2 = function(gamma_edge, beta)
         grad_gamma[index] = (e2.real-e1.real)/(2*delta_gamma)
         gamma[index] = center
 
         center = beta[index]
         beta_edge[index] = beta[index] - delta_beta
-        e1 = function(gamma=gamma, beta=beta_edge)
+        e1 = function(gamma, beta_edge)
         beta_edge[index] = beta[index] + delta_beta
-        e2 = function(gamma=gamma, beta=beta_edge)
+        e2 = function(gamma, beta_edge)
         grad_beta[index] = (e2.real-e1.real)/(2*delta_beta)
         beta[index] = center
     
@@ -48,7 +54,7 @@ def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta
         grad_gamma, grad_beta = get_gradient(function, gamma, beta, delta_gamma, delta_beta, iter)
         gamma -= alpha * grad_gamma
         beta  -= alpha * grad_beta
-        energy = function(gamma=gamma, beta=beta)
+        energy = function(gamma, beta)
 
         record = [iter, energy]
         for index in range(gamma.size):
@@ -59,7 +65,9 @@ def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta
     
     if len(filepath)>0:
         with open(filepath, mode='a') as f:
+            writer = csv.writer(f)
             for i, textline in enumerate(textlines):
-                f.write("{}\n".format(textline))
+                writer.writerow(textline)
+                # f.write("{}\n".format(textline))
 
     return gamma, beta
