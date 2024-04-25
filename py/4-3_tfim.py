@@ -46,7 +46,7 @@ def optimize_critical_state(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    with open(".toml", mode="rb") as f:
+    with open("4-3_tfim.toml", mode="rb") as f:
         config = tomllib.load(f)
         print(config)
     length_list = config["critical_state"]["length_list"]
