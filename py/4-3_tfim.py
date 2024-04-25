@@ -1,6 +1,7 @@
 import os
 import datetime
 from functools import partial
+import tomllib
 
 import cirq
 import openfermion
@@ -12,7 +13,7 @@ from optimization import optimize_by_gradient_descent
 Pi=3.1415
 
 
-def optimize_tfim(length, 
+def optimize_critical_state(length, 
                             g,
                             p, 
                             alpha, 
@@ -45,18 +46,19 @@ def optimize_tfim(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    # length_list = [4]
-    # p_list = [1,2,3]
-    length_list = [4,8,10]
-    p_list = [1,2,3,4,5,6,7,8,9,10]
-    g = 0.8
+    with open(".toml", mode="rb") as f:
+        config = tomllib.load(f)
+        print(config)
+    length_list = config["critical_state"]["length_list"]
+    p_list = config["critical_state"]["p_list"]
+    g = config["critical_state"]["g"]
+    alpha = config["critical_state"]["alpha"]
+    delta_gamma = config["critical_state"]["delta_gamma"]
+    delta_beta  =config["critical_state"]["delta_beta"]
+    iteration = config["critical_state"]["iteration"]
 
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta  = 0.001
-    iteration = 10
-
-    results_dir_path = os.path.join('.results')
+    results_dir_path = config["critical_state"]["results_dir_path"]
+    # results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
     t_delta = datetime.timedelta(hours=9)
@@ -67,9 +69,9 @@ def main():
 
     for length in length_list:
         for p in p_list:
-            csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{:02}_p{}_{}.csv'.format(length, g, p, ymdhms))
-            tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{:02}_p{}_{}.toml'.format(length, g, p, ymdhms))
-            optimize_tfim(length, 
+            csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.csv'.format(length,str(g).replace(".", "-"), p, ymdhms))
+            tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.toml'.format(length,str(g).replace(".", "-"), p, ymdhms))
+            optimize_critical_state(length, 
                             g,
                             p, 
                             alpha, 
