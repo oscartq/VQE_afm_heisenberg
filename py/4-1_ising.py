@@ -11,6 +11,7 @@ from optimization import get_gradient, optimize_by_gradient_descent
 
 def main():
     length_list = [8,10,12,14,16]
+    p_list = [1,2,3,4,5,6,7,8,9]
     alpha = 0.01
     delta_gamma = 0.001
     delta_beta  = 0.001
@@ -19,8 +20,8 @@ def main():
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
-    for length in length_list:
-        for p in range(1,int(length/2)+1):
+    for p in range(1,int(length/2)+1):
+        for length in length_list:
             # length = 10
             # p = 5
             initial_gamma = np.array([(0.5) for i in range(p)])

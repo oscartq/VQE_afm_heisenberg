@@ -67,8 +67,8 @@ def main():
     ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
 
 
-    for length in length_list:
-        for p in p_list:
+    for p in p_list:
+        for length in length_list:
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
             optimize_critical_state(length, 
