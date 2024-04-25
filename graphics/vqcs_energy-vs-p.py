@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 
 # TOMLファイルからディレクトリを読み込む
-with open('vqcs_energy-vs-p.toml', 'r') as f:
+with open('graphics.toml', 'r') as f:
     config = toml.load(f)
     directory = config['directory']
     csv_prefix = config['csv_prefix']

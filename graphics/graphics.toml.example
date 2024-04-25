@@ -1,0 +1,4 @@
+# rename me to graphics.toml
+directory="../py/.results"
+csv_prefix = "4-2_critical"
+save_fig_directory = 'figs'
