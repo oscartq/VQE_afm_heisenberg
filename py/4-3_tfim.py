@@ -7,13 +7,13 @@ import cirq
 import openfermion
 import numpy as np
 from anzats import Anzats
-from expectation import get_expectation_critical_state, TFIMStateArgs
+from expectation import get_expectation_tfim, TFIMStateArgs
 from optimization import optimize_by_gradient_descent
 
 Pi=3.1415
 
 
-def optimize_critical_state(length, 
+def optimize_tfim(length, 
                             g,
                             p, 
                             alpha, 
@@ -30,7 +30,7 @@ def optimize_critical_state(length,
     print("exact energy: ")
     print(-1.28*length)
 
-    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
+    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_tfim, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
     print(gamma, beta)
 
 
@@ -46,18 +46,18 @@ def optimize_critical_state(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    with open("4-3_tfim.toml", mode="rb") as f:
+    with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
         print(config)
-    length_list = config["critical_state"]["length_list"]
-    p_list = config["critical_state"]["p_list"]
-    g = config["critical_state"]["g"]
-    alpha = config["critical_state"]["alpha"]
-    delta_gamma = config["critical_state"]["delta_gamma"]
-    delta_beta  =config["critical_state"]["delta_beta"]
-    iteration = config["critical_state"]["iteration"]
+    length_list = config["tfim"]["length_list"]
+    p_list = config["tfim"]["p_list"]
+    g = config["tfim"]["g"]
+    alpha = config["tfim"]["alpha"]
+    delta_gamma = config["tfim"]["delta_gamma"]
+    delta_beta  =config["tfim"]["delta_beta"]
+    iteration = config["tfim"]["iteration"]
 
-    results_dir_path = config["critical_state"]["results_dir_path"]
+    results_dir_path = config["tfim"]["results_dir_path"]
     # results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
@@ -71,7 +71,7 @@ def main():
         for p in p_list:
             csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.csv'.format(length,str(g).replace(".", "-"), p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.toml'.format(length,str(g).replace(".", "-"), p, ymdhms))
-            optimize_critical_state(length, 
+            optimize_tfim(length, 
                             g,
                             p, 
                             alpha, 
