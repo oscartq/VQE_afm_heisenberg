@@ -1,12 +1,13 @@
 import os
 import datetime
 from functools import partial
+import tomllib
 
 import cirq
 import openfermion
 import numpy as np
 from anzats import Anzats
-from expectation import get_expectation_critical_state, TFIMStateArgs
+from expectation import get_expectation_tfim, TFIMStateArgs
 from optimization import optimize_by_gradient_descent
 
 Pi=3.1415
@@ -26,7 +27,14 @@ def optimize_tfim(length,
 
     function_args = TFIMStateArgs(length, g)
 
+<<<<<<< HEAD
     gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
+=======
+    print("exact energy: ")
+    print(-1.28*length)
+
+    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_tfim, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
+>>>>>>> 48f7f673cf933dce318988d08a2ed9d9270dc408
     print(gamma, beta)
 
 
@@ -42,18 +50,19 @@ def optimize_tfim(length,
         f.write("iteration    ={}\n".format(iteration))
 
 def main():
-    # length_list = [4]
-    # p_list = [1,2,3]
-    length_list = [4,8,10]
-    p_list = [1,2,3,4,5,6,7,8,9,10]
-    g = 0.8
+    with open(".toml", mode="rb") as f:
+        config = tomllib.load(f)
+        print(config)
+    length_list = config["tfim"]["length_list"]
+    p_list = config["tfim"]["p_list"]
+    g = config["tfim"]["g"]
+    alpha = config["tfim"]["alpha"]
+    delta_gamma = config["tfim"]["delta_gamma"]
+    delta_beta  =config["tfim"]["delta_beta"]
+    iteration = config["tfim"]["iteration"]
 
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta  = 0.001
-    iteration = 10
-
-    results_dir_path = os.path.join('.results')
+    results_dir_path = config["tfim"]["results_dir_path"]
+    # results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
     t_delta = datetime.timedelta(hours=9)
@@ -64,8 +73,8 @@ def main():
 
     for length in length_list:
         for p in p_list:
-            csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{:02}_p{}_{}.csv'.format(length, g, p, ymdhms))
-            tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{:02}_p{}_{}.toml'.format(length, g, p, ymdhms))
+            csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.csv'.format(length,str(g).replace(".", "-"), p, ymdhms))
+            tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.toml'.format(length,str(g).replace(".", "-"), p, ymdhms))
             optimize_tfim(length, 
                             g,
                             p, 
