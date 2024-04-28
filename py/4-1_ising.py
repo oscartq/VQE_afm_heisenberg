@@ -10,21 +10,22 @@ from expectation import *
 from optimization import get_gradient, optimize_by_gradient_descent
 
 def main():
-    length_list = [8,10,12,14,16]
+    length_list = [16]
+    # length_list = [8,10,12,14,16]
     alpha = 0.01
     delta_gamma = 0.001
     delta_beta  = 0.001
-    iteration = 30
+    iteration = 20
     results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
     for length in length_list:
-        for p in range(1,int(length/2)+1):
+        # for p in range(1,int(length/2)+1):
             # length = 10
-            # p = 5
-            initial_gamma = np.array([(0.5) for i in range(p)])
-            initial_beta  = np.array([(0.5) for i in range(p)])
+            p = 8
+            initial_gamma = np.array([0.3338298499584198,0.5585269927978516,0.5999090075492859,0.5951893627643585,0.6022665202617645,0.6437351107597351,0.69035205245018,0.7194274961948395])
+            initial_beta  = np.array([0.7192483842372894,0.6903170347213745,0.6435436308383942,0.602260410785675,0.5952440500259399,0.6001113653182983,0.5583064556121826,0.33388543128967285])
             
             t_delta = datetime.timedelta(hours=9)
             JST = datetime.timezone(t_delta, 'JST')

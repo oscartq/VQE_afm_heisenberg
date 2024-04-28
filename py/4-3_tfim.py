@@ -26,9 +26,6 @@ def optimize_tfim(length,
 
     function_args = TFIMStateArgs(length, g)
 
-    print("exact energy: ")
-    print(-1.28*length)
-
     gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
     print(gamma, beta)
 
