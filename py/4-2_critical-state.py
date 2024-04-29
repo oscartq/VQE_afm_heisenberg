@@ -59,9 +59,9 @@ def main():
     initial_beta  = config["critical_state"]["initial_beta"]
     iteration = config["critical_state"]["iteration"]
 
-    if not (len(initial_gamma)==p):
+    if not (len(initial_gamma)==p_list[0]):
         raise ValueError("length of the initial parameter gamma must equal to p")
-    if not (len(initial_beta)==p):
+    if not (len(initial_beta)==p_list[0]):
         raise ValueError("length of the initial parameter beta must equal to p")
         
     results_dir_path = config["critical_state"]["results_dir_path"]
@@ -75,8 +75,9 @@ def main():
 
 
     for p in p_list:
-        initial_gamma = np.array([0.5 for i in range(p)])
-        initial_beta  = np.array([0.5 for i in range(p)])
+        if not (len(initial_gamma)==p):
+            initial_gamma = np.array([0.5 for i in range(p)])
+            initial_beta  = np.array([0.5 for i in range(p)])
         for length in length_list:
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
