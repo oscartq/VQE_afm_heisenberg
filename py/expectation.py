@@ -9,9 +9,10 @@ import cupy as cp
 # from optimization import get_gradient, optimize_by_gradient_descent
 
 class TFIMStateArgs():
-    def __init__(self, length, g):
+    def __init__(self, length, g, qsim_option=None):
         self.length = length
         self.g = g
+        self.qsim_option = qsim_option
 
 
 def get_expectation_critical_state(function_args, gamma, beta):
@@ -73,7 +74,7 @@ def get_expectation_critical_state_gpu(function_args, gamma, beta):
     anzats = Anzats(function_args.length, gamma, beta)
     circuit = anzats.circuit
     qubits = anzats.qubits
-    simulator = qsimcirq.QSimSimulator()
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
     vector = simulator.simulate(circuit).state_vector()
 
     value = 0 + 0j

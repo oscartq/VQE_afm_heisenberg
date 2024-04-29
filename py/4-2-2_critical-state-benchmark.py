@@ -56,8 +56,8 @@ def main():
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
         print(config)
-    length_list = config["critical_state"]["length_list"]
-    p_list = config["critical_state"]["p_list"]
+    length_list = [16]
+    p_list = [4]
     g = config["critical_state"]["g"]
     alpha = config["critical_state"]["alpha"]
     delta_gamma = config["critical_state"]["delta_gamma"]
@@ -67,10 +67,6 @@ def main():
     iteration = config["critical_state"]["iteration"]
     gpu = config["critical_state"]["gpu"]
 
-    if not (len(initial_gamma)==p_list[0]):
-        raise ValueError("length of the initial parameter gamma must equal to p")
-    if not (len(initial_beta)==p_list[0]):
-        raise ValueError("length of the initial parameter beta must equal to p")
         
     results_dir_path = config["critical_state"]["results_dir_path"]
     # results_dir_path = os.path.join('.results')
@@ -83,9 +79,8 @@ def main():
 
 
     for p in p_list:
-        if not (len(initial_gamma)==p):
-            initial_gamma = np.array([0.5 for i in range(p)])
-            initial_beta  = np.array([0.5 for i in range(p)])
+        initial_gamma = np.array([0.5 for i in range(p)])
+        initial_beta  = np.array([0.5 for i in range(p)])
         for length in length_list:
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
@@ -115,6 +110,26 @@ def main():
             energy2 = get_expectation_critical_state_gpu(function_args, initial_gamma, initial_beta)
             end_time = time.time()
             print(f"qsim Time: {end_time - start_time} seconds")
+            assert energy1 != energy2
+            # print(f"energy: {energy1}")
+
+            thread = 15
+            qsim_option = {'t': thread}
+            function_args =  TFIMStateArgs(length, g, qsim_option)
+            start_time = time.time()
+            energy2 = get_expectation_critical_state_gpu(function_args, initial_gamma, initial_beta)
+            end_time = time.time()
+            print(f"qsim Time with thread={thread}: {end_time - start_time} seconds")
+            assert energy1 != energy2
+            # print(f"energy: {energy1}")
+
+            thread = 8
+            qsim_option = {'t': thread}
+            function_args =  TFIMStateArgs(length, g, qsim_option)
+            start_time = time.time()
+            energy2 = get_expectation_critical_state_gpu(function_args, initial_gamma, initial_beta)
+            end_time = time.time()
+            print(f"qsim Time with thread={thread}: {end_time - start_time} seconds")
             assert energy1 != energy2
             print(f"energy: {energy1}")
 

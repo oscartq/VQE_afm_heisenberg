@@ -15,6 +15,7 @@ Pi=3.1415
 
 def optimize_critical_state(length, 
                             g,
+                            qsim_option, 
                             p, 
                             alpha, 
                             delta_gamma, 
@@ -26,7 +27,7 @@ def optimize_critical_state(length,
                             tomlpath,
                             gpu=False):
 
-    function_args = TFIMStateArgs(length, g)
+    function_args = TFIMStateArgs(length, g, qsim_option)
 
     print("exact energy: ")
     print(-1.28*length)
@@ -85,11 +86,13 @@ def main():
             initial_gamma = np.array([0.5 for i in range(p)])
             initial_beta  = np.array([0.5 for i in range(p)])
         for length in length_list:
+            qsim_option = {'t': int(length/2)}
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
             optimize_critical_state(length, 
                             g,
                             p, 
+                            qsim_option, 
                             alpha, 
                             delta_gamma, 
                             delta_beta, 
