@@ -8,7 +8,7 @@ import openfermion
 import numpy as np
 from anzats import Anzats
 from expectation import get_expectation_critical_state, TFIMStateArgs
-from optimization import optimize_by_gradient_descent
+from optimization import optimize_by_gradient_descent, optimize_by_gradient_descent_gpu
 
 Pi=3.1415
 
@@ -23,14 +23,19 @@ def optimize_critical_state(length,
                             initial_beta,
                             iteration, 
                             csvpath, 
-                            tomlpath):
+                            tomlpath,
+                            gpu=False):
 
     function_args = TFIMStateArgs(length, g)
 
     print("exact energy: ")
     print(-1.28*length)
 
-    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
+    if gpu:
+        gamma, beta = optimize_by_gradient_descent_gpu(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
+
+    else:
+        gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
     print(gamma, beta)
 
 
@@ -58,6 +63,7 @@ def main():
     initial_gamma = np.array(config["critical_state"]["initial_gamma"])
     initial_beta  = np.array(config["critical_state"]["initial_beta"])
     iteration = config["critical_state"]["iteration"]
+    gpu = config["critical_state"]["gpu"]
 
     if not (len(initial_gamma)==p_list[0]):
         raise ValueError("length of the initial parameter gamma must equal to p")
@@ -91,7 +97,8 @@ def main():
                             initial_beta,
                             iteration, 
                             csvpath, 
-                            tomlpath)
+                            tomlpath,
+                            gpu)
 
 if __name__=='__main__':
     main()
