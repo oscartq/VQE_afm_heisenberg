@@ -55,8 +55,8 @@ def main():
     alpha = config["critical_state"]["alpha"]
     delta_gamma = config["critical_state"]["delta_gamma"]
     delta_beta  = config["critical_state"]["delta_beta"]
-    initial_gamma = config["critical_state"]["initial_gamma"]
-    initial_beta  = config["critical_state"]["initial_beta"]
+    initial_gamma = np.array(config["critical_state"]["initial_gamma"])
+    initial_beta  = np.array(config["critical_state"]["initial_beta"])
     iteration = config["critical_state"]["iteration"]
 
     if not (len(initial_gamma)==p_list[0]):
