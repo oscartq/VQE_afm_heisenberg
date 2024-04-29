@@ -54,9 +54,16 @@ def main():
     g = config["critical_state"]["g"]
     alpha = config["critical_state"]["alpha"]
     delta_gamma = config["critical_state"]["delta_gamma"]
-    delta_beta  =config["critical_state"]["delta_beta"]
+    delta_beta  = config["critical_state"]["delta_beta"]
+    initial_gamma = config["critical_state"]["initial_gamma"]
+    initial_beta  = config["critical_state"]["initial_beta"]
     iteration = config["critical_state"]["iteration"]
 
+    if not (len(initial_gamma)==p):
+        raise ValueError("length of the initial parameter gamma must equal to p")
+    if not (len(initial_beta)==p):
+        raise ValueError("length of the initial parameter beta must equal to p")
+        
     results_dir_path = config["critical_state"]["results_dir_path"]
     # results_dir_path = os.path.join('.results')
     if not os.path.exists(results_dir_path):
