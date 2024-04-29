@@ -1,2 +1,3 @@
 cirq==1.3.0
 openfermion==1.6.1
+numpy==1.26.4
