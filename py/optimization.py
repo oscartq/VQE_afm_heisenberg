@@ -77,9 +77,9 @@ def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta
 
     return gamma, beta
 
-def get_gradient_gpu(function, gamma: cp.array, beta: cp.array, delta_gamma, delta_beta, iter):
-    grad_gamma = cp.zeros_like(gamma)
-    grad_beta  = cp.zeros_like(beta)
+def get_gradient_gpu(function, gamma: np.array, beta: np.array, delta_gamma, delta_beta, iter):
+    grad_gamma = np.zeros_like(gamma)
+    grad_beta  = np.zeros_like(beta)
     gamma_edge = gamma
     beta_edge  = beta
     # initial gamma, beta?
@@ -108,7 +108,7 @@ def get_gradient_gpu(function, gamma: cp.array, beta: cp.array, delta_gamma, del
 
 
 def optimize_by_gradient_descent_gpu(function, initial_gamma: np.array, initial_beta: np.array, alpha, delta_gamma, delta_beta, iteration, Figure=True,filepath=""):
-    gamma, beta = cp.asarray(initial_gamma), cp.asarray(initial_beta)
+    gamma, beta = np.asarray(initial_gamma), np.asarray(initial_beta)
 
     textlines = []
     headline = ["iter", "energy"]
