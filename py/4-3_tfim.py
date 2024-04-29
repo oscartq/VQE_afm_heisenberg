@@ -19,6 +19,8 @@ def optimize_tfim(length,
                             alpha, 
                             delta_gamma, 
                             delta_beta, 
+                            initial_gamma,
+                            initial_beta,
                             iteration, 
                             csvpath, 
                             tomlpath):
