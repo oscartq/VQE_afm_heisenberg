@@ -19,11 +19,11 @@ def optimize_critical_state(length,
                             alpha, 
                             delta_gamma, 
                             delta_beta, 
+                            initial_gamma,
+                            initial_beta,
                             iteration, 
                             csvpath, 
                             tomlpath):
-    initial_gamma = np.array([0.5 for i in range(p)])
-    initial_beta  = np.array([0.5 for i in range(p)])
 
     function_args = TFIMStateArgs(length, g)
 
@@ -68,6 +68,8 @@ def main():
 
 
     for p in p_list:
+        initial_gamma = np.array([0.5 for i in range(p)])
+        initial_beta  = np.array([0.5 for i in range(p)])
         for length in length_list:
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
@@ -77,6 +79,8 @@ def main():
                             alpha, 
                             delta_gamma, 
                             delta_beta, 
+                            initial_gamma,
+                            initial_beta,
                             iteration, 
                             csvpath, 
                             tomlpath)

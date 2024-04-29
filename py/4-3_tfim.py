@@ -22,19 +22,13 @@ def optimize_tfim(length,
                             iteration, 
                             csvpath, 
                             tomlpath):
-    initial_gamma = np.array([0.5 for i in range(p)])
-    initial_beta  = np.array([0.5 for i in range(p)])
 
     function_args = TFIMStateArgs(length, g)
 
-<<<<<<< HEAD
-    gamma, beta = optimize_by_gradient_descent(partial(get_expectation_critical_state, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
-=======
     print("exact energy: ")
     print(-1.28*length)
 
     gamma, beta = optimize_by_gradient_descent(partial(get_expectation_tfim, function_args=function_args), initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, True, csvpath)
->>>>>>> 48f7f673cf933dce318988d08a2ed9d9270dc408
     print(gamma, beta)
 
 
@@ -71,8 +65,10 @@ def main():
     ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
 
 
-    for length in length_list:
-        for p in p_list:
+    for p in p_list:
+        initial_gamma = np.array([0.5 for i in range(p)])
+        initial_beta  = np.array([0.5 for i in range(p)])
+        for length in length_list:
             csvpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.csv'.format(length,str(g).replace(".", "-"), p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-3_critical_l{:02}_g{}_p{}_{}.toml'.format(length,str(g).replace(".", "-"), p, ymdhms))
             optimize_tfim(length, 
