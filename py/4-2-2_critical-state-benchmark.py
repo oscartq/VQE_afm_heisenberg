@@ -133,5 +133,16 @@ def main():
             assert energy1 != energy2
             print(f"energy: {energy1}")
 
+            thread = 8
+            fused_gate = 1 # int(thread/2)
+            qsim_option = {'t': thread, 'f': fused_gate}
+            function_args =  TFIMStateArgs(length, g, qsim_option)
+            start_time = time.time()
+            energy2 = get_expectation_critical_state_gpu(function_args, initial_gamma, initial_beta)
+            end_time = time.time()
+            print(f"qsim Time with thread={thread}: {end_time - start_time} seconds")
+            assert energy1 != energy2
+            print(f"energy: {energy1}")
+
 if __name__=='__main__':
     main()

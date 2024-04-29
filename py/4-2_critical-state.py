@@ -86,7 +86,7 @@ def main():
             initial_gamma = np.array([0.5 for i in range(p)])
             initial_beta  = np.array([0.5 for i in range(p)])
         for length in length_list:
-            qsim_option = {'t': int(length/2)}
+            qsim_option = {'t': int(length/2), 'f':1}
             csvpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.csv'.format(length, p, ymdhms))
             tomlpath = os.path.join(results_dir_path, '4-2_critical_l{:02}_p{}_{}.toml'.format(length, p, ymdhms))
             optimize_critical_state(length, 
