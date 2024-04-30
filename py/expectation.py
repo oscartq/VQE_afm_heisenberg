@@ -93,3 +93,30 @@ def get_expectation_critical_state_gpu(function_args, gamma, beta):
         vector2 = simulator.simulate(circuit).state_vector()
         value -= cp.dot(vector2.conj(), vector)
     return value
+
+def get_expectation_critical_state_multicore(function_args, gamma, beta):
+    anzats = Anzats(function_args.length, gamma, beta)
+    circuit = anzats.circuit
+    qubits = anzats.qubits
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    vector = simulator.simulate(circuit).state_vector()
+
+    value = 0 + 0j
+    threads = []
+
+
+    for i in range(function_args.length):
+        circuit = anzats.circuit.copy()
+        circuit.append(cirq.Z(qubits[i]))
+        circuit.append(cirq.Z(qubits[(i+1)%function_args.length]))
+        # simulator = qsimcirq.QSimSimulator()
+        vector2 = simulator.simulate(circuit).state_vector()
+        return -cp.dot(vector2.conj(), vector)
+    for i in range(function_args.length):
+        circuit = anzats.circuit.copy()
+        # circuit.append(function_args.g * cirq.X(qubits[i]))
+        circuit.append(cirq.XPowGate(exponent=function_args.g).on(qubits[i]))
+        # simulator = qsimcirq.QSimSimulator()
+        vector2 = simulator.simulate(circuit).state_vector()
+        value -= cp.dot(vector2.conj(), vector)
+    return value
