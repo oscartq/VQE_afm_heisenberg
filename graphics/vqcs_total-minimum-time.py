@@ -48,6 +48,7 @@ plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベル�
 plt.xlabel('Number_l', fontsize=20)  # x軸ラベルのフォントサイズ
 plt.ylabel('T', fontsize=20)  # y軸ラベルのフォントサイズ
 plt.grid(True)
+plt.legend(loc='upper right')
 print(list(T_values.keys()))
 print(list(T_values.values()))
 # plt.yticks(min(list(T_values.values())),max(list(T_values.values()))+1,1)

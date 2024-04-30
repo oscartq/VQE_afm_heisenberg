@@ -101,3 +101,38 @@ class AnzatsAFMHeisenberg():
         self.gamma = gamma
         self.beta = beta
 
+
+class AnzatsToricCode():
+    def __init__(self, length, gamma, beta):
+
+        # initialize circuit
+        circuit = cirq.Circuit()
+        qubits = [[cirq.GridQubit(i, j) for i in range(length)] for j in range(length)]
+
+        for i in range(length):
+            for j in range(length):
+                circuit.append(cirq.H(qubits[i][j]))
+
+        # add gamma circuit
+        for index in range(gamma.size):
+            # add gates on 2n and 2n+1
+            for i in range(length):
+                for j in range(length):
+                    circuit.append(cirq.X(qubits[i][(j+1)%length]) ** (gamma[index]*2/Pi))
+                    circuit.append(cirq.Y(qubits[(i+1)%length][(j+1)%length]) ** (gamma[index]*2/Pi))
+                    circuit.append(cirq.X(qubits[(i+1)%length][j]) ** (gamma[index]*2/Pi))
+                    circuit.append(cirq.Y(qubits[i][j]) ** (gamma[index]*2/Pi))
+
+            # add beta circuit
+            for i in range(length):
+                for j in range(length):
+                    circuit.append(
+                        cirq.XPowGate(
+                            exponent=beta[index]*2/Pi, global_shift=0.0).on(
+                            qubits[i][j])
+                    )
+
+        self.circuit = circuit
+        self.qubits = qubits
+        self.gamma = gamma
+        self.beta = beta

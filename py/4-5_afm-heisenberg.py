@@ -28,13 +28,13 @@ def main():
         os.mkdir(results_dir_path)
 
     output_file_prefix = "4-5_afm-heisenberg"
-    
+
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
     now = datetime.datetime.now(JST)
     ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
 
-    pool = mp.Pool(2)
+    pool = mp.Pool(4)
 
     for p in p_list:
         initial_gamma = np.array([0.5 for i in range(p)])

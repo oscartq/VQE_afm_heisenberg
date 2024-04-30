@@ -2,7 +2,7 @@ import cirq
 import openfermion
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsToricCode
 import qsimcirq
 import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
@@ -165,20 +165,24 @@ class ToricCodeArgs():
 
 def get_expectation_toric_code(function_args, gamma, beta):
     # open boundary
-    anzats = ToricCodeArgs(function_args.length, gamma, beta)
+    anzats = AnzatsToricCode(function_args.length, gamma, beta)
+    length = function_args.length
+
     circuit = anzats.circuit
     qubits = anzats.qubits
     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
     vector = simulator.simulate(circuit).state_vector()
-
     value = 0 + 0j
+    
     for i in range(function_args.length-1):
         for j in range(function_args.length-1):
             circuit = anzats.circuit.copy()
-
-            circuit.append(cirq.X(qubits[i]))
-            circuit.append(cirq.X(qubits[(i+1)]))
+            circuit.append(cirq.X(qubits[i][(j+1)%length]))
+            circuit.append(cirq.Y(qubits[(i+1)%length][(j+1)%length]))
+            circuit.append(cirq.X(qubits[(i+1)%length][j]))
+            circuit.append(cirq.Y(qubits[i][j]))
             vector2 = simulator.simulate(circuit).state_vector()
             value -= np.dot(vector2.conj(), vector)
 
     return value
+
