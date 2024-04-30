@@ -56,17 +56,6 @@ def main():
 
             function_args = AFMHeisenbergArgs(length, qsim_option)
 
-            # gamma, beta = optimize_by_gradient_descent_multiprocess(
-            #     function=partial(get_expectation_afm_heisenberg, function_args=function_args), 
-            #     initial_gamma=initial_gamma, 
-            #     initial_beta=initial_beta, 
-            #     alpha=alpha, 
-            #     delta_gamma=delta_gamma, 
-            #     delta_beta=delta_beta, 
-            #     iteration=iteration, 
-            #     figure=True,
-            #     filepath=csvpath, 
-            #     pool=pool)
             gamma, beta = optimize_by_gradient_descent_multiprocess(
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args), 
                 initial_gamma=initial_gamma, 

@@ -128,6 +128,7 @@ class AFMHeisenbergArgs():
 
 
 def get_expectation_afm_heisenberg(function_args, gamma, beta):
+    # open boundary
     anzats = AnzatsAFMHeisenberg(function_args.length, gamma, beta)
     circuit = anzats.circuit
     qubits = anzats.qubits
