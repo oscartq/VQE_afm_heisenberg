@@ -2,7 +2,7 @@ import cirq
 import openfermion
 import numpy as np
 import datetime
-from anzats import Anzats
+from anzats import Anzats, AnzatsAFMHeisenberg
 import qsimcirq
 import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
@@ -120,3 +120,39 @@ def get_expectation_critical_state_multicore(function_args, gamma, beta):
         vector2 = simulator.simulate(circuit).state_vector()
         value -= cp.dot(vector2.conj(), vector)
     return value
+
+class AFMHeisenbergArgs():
+    def __init__(self, length, qsim_option):
+        self.length = length
+        self.qsim_option = qsim_option
+
+
+def get_expectation_afm_heisenberg(function_args, gamma, beta):
+    anzats = AnzatsAFMHeisenberg(function_args.length, gamma, beta)
+    circuit = anzats.circuit
+    qubits = anzats.qubits
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    vector = simulator.simulate(circuit).state_vector()
+
+    value = 0 + 0j
+    for i in range(function_args.length-1):
+        circuitX = anzats.circuit.copy()
+        circuitY = anzats.circuit.copy()
+        circuitZ = anzats.circuit.copy()
+
+        circuitX.append(cirq.X(qubits[i]))
+        circuitX.append(cirq.X(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitX).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitY.append(cirq.Y(qubits[i]))
+        circuitY.append(cirq.Y(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitY).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitZ.append(cirq.Z(qubits[i]))
+        circuitZ.append(cirq.Z(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitZ).state_vector()
+        value += np.dot(vector2.conj(), vector)
+    return value
+

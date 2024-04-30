@@ -46,7 +46,7 @@ def get_gradient(function, gamma: np.array, beta: np.array, delta_gamma, delta_b
     return grad_gamma, grad_beta
 
 
-def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta: np.array, alpha, delta_gamma, delta_beta, iteration, Figure=True,filepath=""):
+def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta: np.array, alpha, delta_gamma, delta_beta, iteration, figure=True,filepath=""):
     gamma, beta = initial_gamma, initial_beta
 
     textlines = []
@@ -110,7 +110,7 @@ def get_gradient_gpu(function, gamma: np.array, beta: np.array, delta_gamma, del
     return grad_gamma, grad_beta
 
 
-def optimize_by_gradient_descent_gpu(function, initial_gamma: np.array, initial_beta: np.array, alpha, delta_gamma, delta_beta, iteration, Figure=True,filepath=""):
+def optimize_by_gradient_descent_gpu(function, initial_gamma: np.array, initial_beta: np.array, alpha, delta_gamma, delta_beta, iteration, figure=True,filepath=""):
     gamma, beta = np.asarray(initial_gamma), np.asarray(initial_beta)
 
     textlines = []
