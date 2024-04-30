@@ -14,7 +14,7 @@ with open('graphics.toml', 'r') as f:
     save_fig_directory = config['save_fig_directory']
 
 # number_lの範囲を定義
-number_l_range = range(8, 17, 2)
+number_l_range = range(8, 19, 2)
 # number_pの範囲を定義
 number_p_range = range(1, 11)
 

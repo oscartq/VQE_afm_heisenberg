@@ -22,12 +22,13 @@ def main():
     delta_gamma = config["afm_heisenberg"]["delta_gamma"]
     delta_beta  =config["afm_heisenberg"]["delta_beta"]
     iteration = config["afm_heisenberg"]["iteration"]
-    output_file_prefix = "4-5_afm-heisenberg"
 
     results_dir_path = config["afm_heisenberg"]["results_dir_path"]
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
+    output_file_prefix = "4-5_afm-heisenberg"
+    
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
     now = datetime.datetime.now(JST)

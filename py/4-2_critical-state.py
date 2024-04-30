@@ -65,7 +65,7 @@ def main():
 
             function_args = TFIMStateArgs(length, g, qsim_option)
 
-            print("exact energy: ")
+            print("exact energy (in paper): ")
             print(-1.28*length)
 
             gamma, beta = optimize_by_gradient_descent_multiprocess(

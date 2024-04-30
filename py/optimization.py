@@ -53,7 +53,7 @@ def optimize_by_gradient_descent(function, initial_gamma: np.array, initial_beta
     headline = ["iter", "energy"]
     for p in range(int(len(initial_gamma))):
         headline.append("gamma[{}]".format(p))
-        headline.append("bata[{}]".format(p))
+        headline.append("beta[{}]".format(p))
     print(headline)
     textlines.append(headline)
 
@@ -117,7 +117,7 @@ def optimize_by_gradient_descent_gpu(function, initial_gamma: np.array, initial_
     headline = ["iter", "energy"]
     for p in range(int(len(initial_gamma))):
         headline.append("gamma[{}]".format(p))
-        headline.append("bata[{}]".format(p))
+        headline.append("beta[{}]".format(p))
     print(headline)
     textlines.append(headline)
 
@@ -181,7 +181,7 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
         headline = ["iter", "energy"]
         for p in range(int(len(initial_gamma))):
             headline.append("gamma[{}]".format(p))
-            headline.append("bata[{}]".format(p))
+            headline.append("beta[{}]".format(p))
         print(headline)
         writer.writerow(headline)
 

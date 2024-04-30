@@ -157,3 +157,28 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
         value += np.dot(vector2.conj(), vector)
     return value
 
+class ToricCodeArgs():
+    def __init__(self, length, qsim_option):
+        self.length = length
+        self.qsim_option = qsim_option
+
+
+def get_expectation_toric_code(function_args, gamma, beta):
+    # open boundary
+    anzats = ToricCodeArgs(function_args.length, gamma, beta)
+    circuit = anzats.circuit
+    qubits = anzats.qubits
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    vector = simulator.simulate(circuit).state_vector()
+
+    value = 0 + 0j
+    for i in range(function_args.length-1):
+        for j in range(function_args.length-1):
+            circuit = anzats.circuit.copy()
+
+            circuit.append(cirq.X(qubits[i]))
+            circuit.append(cirq.X(qubits[(i+1)]))
+            vector2 = simulator.simulate(circuit).state_vector()
+            value -= np.dot(vector2.conj(), vector)
+
+    return value
