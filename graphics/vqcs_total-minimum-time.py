@@ -11,11 +11,13 @@ with open('graphics.toml', 'r') as f:
     directory = config['directory']
     csv_prefix = config['csv_prefix']
     save_fig_directory = config['save_fig_directory']
+    number_l_list = config['number_l']
+    number_p_list = config['number_p']
 
 # number_lの範囲を定義
-number_l_range = range(8, 17, 2)
+# number_l_range = range(8, 19, 2)
 # number_pの範囲を定義
-number_p_range = range(1, 11)
+# number_p_range = range(1, 11)
 
 # マーカーと線種のリストを定義
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
@@ -26,8 +28,8 @@ plt.figure(figsize=(10, 6))  # 一度だけ図のサイズを定義
 T_values = {}
 
 # 各number_l, number_pに対して最新のファイルを検索し、最終行のデータを抽出
-for i, number_l in enumerate(number_l_range):
-    number_p = number_l / 2
+for i, number_l in enumerate(number_l_list):
+    number_p = int(number_l / 2)
     pattern = os.path.join(directory, f"{csv_prefix}_l{number_l:02}_p{int(number_p)}_*.csv")
     files = glob.glob(pattern)
     if files:

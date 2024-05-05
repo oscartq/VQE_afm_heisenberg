@@ -15,7 +15,7 @@ from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_
 def main():
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
-        print(config)
+        # print(config)
     length_list = config["toric_code"]["length_list"]
     p_list = config["toric_code"]["p_list"]
     alpha = config["toric_code"]["alpha"]
@@ -28,14 +28,14 @@ def main():
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
-    output_file_prefix = "4-5_afm-heisenberg"
+    output_file_prefix = "4-4_toric-code"
     
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
     now = datetime.datetime.now(JST)
     ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
 
-    pool = mp.Pool(2)
+    pool = mp.Pool(4)
 
     for p in p_list:
         initial_gamma = np.array([0.5 for i in range(p)])
