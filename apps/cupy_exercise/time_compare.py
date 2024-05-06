@@ -2,27 +2,48 @@ import time
 import numpy as np
 import cupy as cp
 
+class Timer():
+    """measure calculation time.
+
+    >>> timer = Timer()
+    ... timer.start_time = 0
+    ... timer.end_time = 1
+    ... timer.spent_time()
+    1    
+    """
+    def __init__(self):
+        self.start_time = 0
+        self.end_time = 0
+    
+    def start(self):
+        self.start_time = time.time()
+    def end(self):
+        self.end_time = time.time()
+    def spent_time(self):
+        return self.end_time-self.start_time
+    
+timer = Timer()
 # タイム計測開始
-start_time = time.time()
+timer.start()
 
 # 行列生成
-a = np.random.rand(10000, 10000)
-b = np.random.rand(10000, 10000)
+a = np.random.rand(1000, 1000)
+b = np.random.rand(1000, 1000)
 
 # 行列の積
 result = np.dot(a, b)
 
 # タイム計測終了
-end_time = time.time()
-
-print(f"NumPy Time: {end_time - start_time} seconds")
+timer.end()
+spent_time = timer.spent_time()
+print(f"NumPy Time: {spent_time} seconds")
 
 # タイム計測開始
 start_time = time.time()
 
 # 行列生成
-a = cp.random.rand(10000, 10000)
-b = cp.random.rand(10000, 10000)
+a = cp.random.rand(1000, 1000)
+b = cp.random.rand(1000, 1000)
 
 # 行列の積
 result = cp.dot(a, b)
@@ -30,7 +51,8 @@ result = cp.dot(a, b)
 # タイム計測終了
 end_time = time.time()
 
-print(f"CuPy Time: {end_time - start_time} seconds")
+spent_time = end_time - start_time
+print(f"CuPy Time: {spent_time} seconds")
 
 
 # NumPyで大量のデータを生成
