@@ -11,8 +11,8 @@ from expectation import *
 from optimization import get_gradient, optimize_by_gradient_descent, optimize_by_gradient_descent_multiprocess
 
 def main():
-    length_list = [14]
-    p_list = [8,9]
+    length_list = [8]
+    p_list = [4]
     alpha = 0.001
     delta_gamma = 0.001
     delta_beta  = 0.001
