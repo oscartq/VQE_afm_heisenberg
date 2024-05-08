@@ -70,7 +70,8 @@ def main():
                 delta_beta=delta_beta, 
                 iteration=iteration, 
                 figure=True,
-                filepath=csvpath)
+                filepath=csvpath,
+                pool=pool)
 
     pool.close()
     pool.join()

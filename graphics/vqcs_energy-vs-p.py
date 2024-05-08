@@ -45,7 +45,7 @@ for i, number_l in enumerate(number_l_list):
 plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベルのフォントサイズ
 plt.xlabel('p', fontsize=20)  # x軸ラベルのフォントサイズ
 plt.ylabel('Energy', fontsize=20)  # y軸ラベルのフォントサイズ
-# plt.title('Energy per length vs. p_number', fontsize=16)  # タイトルのフォントサイズ
+plt.title(f"Energy per length vs. p_number\n{csv_prefix}", fontsize=16)  # タイトルのフォントサイズ
 plt.legend(fontsize=20)  # 凡例のフォントサイズ
 plt.grid(True)
 
