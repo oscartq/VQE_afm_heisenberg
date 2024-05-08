@@ -49,8 +49,8 @@ def main():
         for length in length_list:
             for coulomb in coulomb_list:
                 qsim_option = {'t': int(length/2), 'f':1}
-                csvpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.csv'.format(output_file_prefix, length, coulomb, p, ymdhms))
-                tomlpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.toml'.format(output_file_prefix, length, coulomb, p, ymdhms))
+                csvpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.csv'.format(output_file_prefix, coulomb, length, p, ymdhms))
+                tomlpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.toml'.format(output_file_prefix, coulomb, length, p, ymdhms))
 
                 
                 with open(tomlpath, mode='a') as f:
