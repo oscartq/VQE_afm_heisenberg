@@ -1,12 +1,13 @@
 import cirq
-import openfermion
+import openfermion as of
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsToricCode
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsToricCode, AnzatsBCSHubbard
 import qsimcirq
 import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
 # from optimization import get_gradient, optimize_by_gradient_descent
+from inner_functions import _get_one_body_term_on_hubbard, _get_two_body_term_on_hubbard, _exponentiate_quad_ham
 
 class GHZStateArgs():
     def __init__(self, length, qsim_option=None):
@@ -178,45 +179,67 @@ class HubbardArgs():
         else:
             qsim_option = {'t': 4, 'f': 1}
 
-    
-def get_expectation_hubbard(function_args, gamma, beta):
-    # open boundary
-    anzats = AnzatsHubbard(function_args.length, gamma, beta)
-    length = function_args.length
+class HubbardArgs():
+    def __init__(self, 
+                x_dimension,
+                y_dimension,
+                tunneling,
+                coulomb,
+                chemical_potential=0.0,
+                magnetic_field=0.0,
+                periodic=True,
+                spinless=False,
+                particle_hole_symmetry=False,
+                sc_gap=1.0,
+                qsim_option=None):
+        
+        self.x_dimension = x_dimension
+        self.y_dimension = y_dimension
+        n_sites = x_dimension * y_dimension
+        self.n_sites = n_sites
+        self.n_qubits = 2*n_sites
+        self.tunneling = tunneling
+        self.coulomb = coulomb
+        
+        self.chemical_potential = chemical_potential
+        self.magnetic_field = magnetic_field
+        self.periodic = periodic
+        self.spinless = spinless
+        self.particle_hole_symmetry = particle_hole_symmetry
+        self.sc_gap = sc_gap
 
+        if not (qsim_option):
+            self.qsim_option = qsim_option
+        else:
+            self.qsim_option = {'t': 4, 'f': 1}
+
+        self.hopping_matrix = -tunneling * np.array([ \
+                [ 0., 1., 1., 0.], \
+                [ 1., 0., 0., 1.], \
+                [ 1., 0., 0., 1.], \
+                [ 0., 1., 1., 0.], \
+            ])
+        
+def get_expectation_bcs_hubbard(function_args, gamma, beta):
+    # Initialize the anzats circuit for the Hubbard model
+    anzats = AnzatsBCSHubbard(function_args=function_args, gamma=gamma, beta=beta)
     circuit = anzats.circuit
-    qubits = anzats.qubits
     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
-    vector = simulator.simulate(circuit).state_vector()
+    # vector = simulator.simulate(circuit, qubit_order=anzats.qubits).state_vector()
+
     value = 0 + 0j
-    
-    # define a Hubbard hamiltonian and convert into qubit operator through jordan-wigner transformation
-    fermion_hamiltonian = openfermion.hamiltonians.fermi_hubbard(
-        function_args.x_dimension,
-        function_args.y_dimension,
-        function_args.tunneling,
-        function_args.coulomb,
-        function_args.chemical_potential,
-        function_args.magnetic_field,
-        function_args.periodic,
-        function_args.spinless,
-        function_args.particle_hole_symmetry
-    )
-    qubit_hamiltonian = openfermion.transforms.jordan_wigner(fermion_hamiltonian)
 
-    circuit = anzats.circuit.copy()
-    for term, coefficient in qubit_hamiltonian.terms.items():
-        gate_sequence = []
-        for qubit, pauli in term:
-            if pauli == 'X':
-                gate_sequence.append(cirq.XPowGate(exponent=coefficient).on(qubits[qubit]))
-            elif pauli == 'Y':
-                gate_sequence.append(cirq.YPowGate(exponent=coefficient).on(qubits[qubit]))
-            elif pauli == 'Z':
-                gate_sequence.append(cirq.ZPowGate(exponent=coefficient).on(qubits[qubit]))
-        circuit.append(gate_sequence)
+    # # Calculate contribution from one-body terms (hopping terms)
+    term = sum(_get_one_body_term_on_hubbard(function_args.hopping_matrix, function_args.n_sites))
+    term_qubit = of.qubit_operator_to_pauli_sum(of.jordan_wigner(term))
+    value_one = simulator.simulate_expectation_values(circuit, observables=[term_qubit])
+    value += sum(value_one)
 
-    vector2 = simulator.simulate(circuit).state_vector()
-    value += np.dot(vector2.conj(), vector)
+    # Calculate contribution from two-body terms (Coulomb interaction)
+    term = sum(_get_two_body_term_on_hubbard(function_args.coulomb, function_args.n_sites, function_args.n_qubits))
+    term_qubit = of.qubit_operator_to_pauli_sum(of.jordan_wigner(term))
+    value_two = simulator.simulate_expectation_values(circuit, observables=[term_qubit])
+    value += sum(value_two)
 
     return value
+
