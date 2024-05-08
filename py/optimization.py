@@ -7,7 +7,7 @@ import multiprocessing as mp
 import cirq
 import openfermion
 import numpy as np
-import cupy as cp
+# import cupy as cp
 Pi=3.1415
 
 from anzats import Anzats

@@ -4,7 +4,7 @@ import numpy as np
 import datetime
 from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsToricCode, AnzatsBCSHubbard
 import qsimcirq
-import cupy as cp
+# import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
 # from optimization import get_gradient, optimize_by_gradient_descent
 from inner_functions import _get_one_body_term_on_hubbard, _get_two_body_term_on_hubbard, _exponentiate_quad_ham
