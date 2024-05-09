@@ -11,6 +11,10 @@ from anzats import Anzats
 from expectation import get_expectation_bcs_hubbard, HubbardArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent
 
+def get_hopping_matrix(x, y=1, tunneling=-1.0, periodic=True):
+    hopping_matrix = tunneling * np.array([
+        [(1.0 if (abs(i-j)%x==1) or (abs(i-j)%x==x-1) else 0.0) for i in range(x)] for j in range(x)
+    ])
 
 def main():
     output_file_prefix = "70_bcs_hubbard"
@@ -65,33 +69,7 @@ def main():
 
                 tunneling = 1.0
 
-                if (length==8):
-                    hopping_matrix = -1.0 * np.array([
-                            [ 0., 1., 0., 0., 0., 0., 0., 1.],
-                            [ 1., 0., 1., 0., 0., 0., 0., 0.], 
-                            [ 0., 1., 0., 1., 0., 0., 0., 0.], 
-                            [ 0., 0., 1., 0., 1., 0., 0., 0.], 
-                            [ 0., 0., 0., 1., 0., 1., 0., 0.], 
-                            [ 0., 0., 0., 0., 1., 0., 1., 0.], 
-                            [ 0., 0., 0., 0., 0., 1., 0., 1.], 
-                            [ 1., 0., 0., 0., 0., 0., 1., 0.], 
-                            ])
-                elif(length==6):
-                    hopping_matrix = -1.0 * np.array([
-                            [ 0., 1., 0., 0., 0., 1.],
-                            [ 1., 0., 1., 0., 0., 0.], 
-                            [ 0., 1., 0., 1., 0., 0.], 
-                            [ 0., 0., 1., 0., 1., 0.], 
-                            [ 0., 0., 0., 1., 0., 1.], 
-                            [ 1., 0., 0., 0., 1., 0.], 
-                            ])
-                else:
-                    hopping_matrix = -1.0 * np.array([
-                            [ 0., 1., 0., 1.],
-                            [ 1., 0., 1., 0.], 
-                            [ 0., 1., 0., 1.], 
-                            [ 1., 0., 1., 0.], 
-                            ])
+                hopping_matrix = get_hopping_matrix(length)
 
                 function_args = HubbardArgs(
                     x_dimension=width_list[0],
