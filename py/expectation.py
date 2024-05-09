@@ -185,6 +185,12 @@ class HubbardArgs():
                 y_dimension,
                 tunneling,
                 coulomb,
+                hopping_matrix = -1.0 * np.array([ \
+                    [ 0., 1., 1., 0.], \
+                    [ 1., 0., 0., 1.], \
+                    [ 1., 0., 0., 1.], \
+                    [ 0., 1., 1., 0.], \
+                ]),
                 chemical_potential=0.0,
                 magnetic_field=0.0,
                 periodic=True,
@@ -213,12 +219,7 @@ class HubbardArgs():
         else:
             self.qsim_option = {'t': 4, 'f': 1}
 
-        self.hopping_matrix = -tunneling * np.array([ \
-                [ 0., 1., 1., 0.], \
-                [ 1., 0., 0., 1.], \
-                [ 1., 0., 0., 1.], \
-                [ 0., 1., 1., 0.], \
-            ])
+        self.hopping_matrix = hopping_matrix
         
 def get_expectation_bcs_hubbard(function_args, gamma, beta):
     # Initialize the anzats circuit for the Hubbard model

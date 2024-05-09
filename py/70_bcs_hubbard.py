@@ -32,7 +32,6 @@ def main():
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
-
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
     now = datetime.datetime.now(JST)
@@ -48,7 +47,7 @@ def main():
         # initial_beta  = np.array([0.3267469275742769, 0.5664307828992605, 0.33639229321852326, 0.7184683829545975, 0.46605566004291177, 0.636924406979233, 0.17602696735411882,0.7614382724277675])
         for length in length_list:
             for coulomb in coulomb_list:
-                qsim_option = {'t': int(length/2), 'f':1}
+                qsim_option = {'t': 4, 'f':1}
                 csvpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.csv'.format(output_file_prefix, coulomb, length, p, ymdhms))
                 tomlpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.toml'.format(output_file_prefix, coulomb, length, p, ymdhms))
 
@@ -64,11 +63,42 @@ def main():
                     f.write("delta_beta   ={}\n".format(delta_beta))
                     f.write("iteration    ={}\n".format(iteration))
 
+                tunneling = 1.0
+
+                if (length==8):
+                    hopping_matrix = -1.0 * np.array([
+                            [ 0., 1., 0., 0., 0., 0., 0., 1.],
+                            [ 1., 0., 1., 0., 0., 0., 0., 0.], 
+                            [ 0., 1., 0., 1., 0., 0., 0., 0.], 
+                            [ 0., 0., 1., 0., 1., 0., 0., 0.], 
+                            [ 0., 0., 0., 1., 0., 1., 0., 0.], 
+                            [ 0., 0., 0., 0., 1., 0., 1., 0.], 
+                            [ 0., 0., 0., 0., 0., 1., 0., 1.], 
+                            [ 1., 0., 0., 0., 0., 0., 1., 0.], 
+                            ])
+                elif(length==6):
+                    hopping_matrix = -1.0 * np.array([
+                            [ 0., 1., 0., 0., 0., 1.],
+                            [ 1., 0., 1., 0., 0., 0.], 
+                            [ 0., 1., 0., 1., 0., 0.], 
+                            [ 0., 0., 1., 0., 1., 0.], 
+                            [ 0., 0., 0., 1., 0., 1.], 
+                            [ 1., 0., 0., 0., 1., 0.], 
+                            ])
+                else:
+                    hopping_matrix = -1.0 * np.array([
+                            [ 0., 1., 0., 1.],
+                            [ 1., 0., 1., 0.], 
+                            [ 0., 1., 0., 1.], 
+                            [ 1., 0., 1., 0.], 
+                            ])
+
                 function_args = HubbardArgs(
                     x_dimension=width_list[0],
                     y_dimension=length,
-                    tunneling=1.,
                     coulomb=coulomb,
+                    tunneling=tunneling,
+                    hopping_matrix = hopping_matrix,
                     chemical_potential=0.0,
                     magnetic_field=0.0,
                     periodic=True,
