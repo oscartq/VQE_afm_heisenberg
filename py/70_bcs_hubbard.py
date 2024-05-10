@@ -15,6 +15,7 @@ def get_hopping_matrix(x, y=1, tunneling=-1.0, periodic=True):
     hopping_matrix = tunneling * np.array([
         [(1.0 if (abs(i-j)%x==1) or (abs(i-j)%x==x-1) else 0.0) for i in range(x)] for j in range(x)
     ])
+    return hopping_matrix
 
 def main():
     output_file_prefix = "70_bcs_hubbard"
@@ -36,10 +37,6 @@ def main():
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
-    t_delta = datetime.timedelta(hours=9)
-    JST = datetime.timezone(t_delta, 'JST')
-    now = datetime.datetime.now(JST)
-    ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
 
     pool = mp.Pool(4)
 
@@ -51,25 +48,16 @@ def main():
         # initial_beta  = np.array([0.3267469275742769, 0.5664307828992605, 0.33639229321852326, 0.7184683829545975, 0.46605566004291177, 0.636924406979233, 0.17602696735411882,0.7614382724277675])
         for length in length_list:
             for coulomb in coulomb_list:
-                qsim_option = {'t': 4, 'f':1}
+                t_delta = datetime.timedelta(hours=9)
+                JST = datetime.timezone(t_delta, 'JST')
+                now = datetime.datetime.now(JST)
+                ymdhms = now.strftime('%Y-%m-%d_%H-%M-%S')
                 csvpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.csv'.format(output_file_prefix, coulomb, length, p, ymdhms))
                 tomlpath = os.path.join(results_dir_path, '{}_Ut{:02}_l{:02}_p{}_{}.toml'.format(output_file_prefix, coulomb, length, p, ymdhms))
 
-                
-                with open(tomlpath, mode='a') as f:
-                    f.write("length       ={}\n".format(length))
-                    f.write("coulomb      ={}\n".format(coulomb))
-                    f.write("p            ={}\n".format(p))
-                    f.write("alpha        ={}\n".format(alpha))
-                    f.write("initial_gamma={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_gamma.tolist()))+"]"))
-                    f.write("initial_beta ={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_beta.tolist())) +"]"))
-                    f.write("delta_gamma  ={}\n".format(delta_gamma))
-                    f.write("delta_beta   ={}\n".format(delta_beta))
-                    f.write("iteration    ={}\n".format(iteration))
-
                 tunneling = 1.0
-
                 hopping_matrix = get_hopping_matrix(length)
+                qsim_option = {'t': 4, 'f':1}
 
                 function_args = HubbardArgs(
                     x_dimension=width_list[0],
@@ -85,17 +73,34 @@ def main():
                     sc_gap=1.0,
                     qsim_option=qsim_option)
                 
-                gamma, beta = optimize_by_gradient_descent_multiprocess(
-                    function=partial(get_expectation_bcs_hubbard, function_args=function_args), 
-                    initial_gamma=initial_gamma, 
-                    initial_beta=initial_beta, 
-                    alpha=alpha, 
-                    delta_gamma=delta_gamma, 
-                    delta_beta=delta_beta, 
-                    iteration=iteration, 
-                    figure=True,
-                    filepath=csvpath,
-                    pool=pool)
+                with open(tomlpath, mode='a') as f:
+                    gamma, beta = optimize_by_gradient_descent_multiprocess(
+                        function=partial(get_expectation_bcs_hubbard, function_args=function_args), 
+                        initial_gamma=initial_gamma, 
+                        initial_beta=initial_beta, 
+                        alpha=alpha, 
+                        delta_gamma=delta_gamma, 
+                        delta_beta=delta_beta, 
+                        iteration=iteration, 
+                        figure=True,
+                        filepath=csvpath,
+                        pool=pool)
+                
+                    f.write(f"start       =\"{now.strftime('%Y-%m-%dT%H:%M:%S')}\"\n")
+                    now = datetime.datetime.now(JST)
+                    f.write(f"end         =\"{now.strftime('%Y-%m-%dT%H:%M:%S')}\"\n")
+                    f.write("\n")
+                    f.write("length       ={}\n".format(length))
+                    f.write("coulomb      ={}\n".format(coulomb))
+                    f.write("p            ={}\n".format(p))
+                    f.write("alpha        ={}\n".format(alpha))
+                    f.write("initial_gamma={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_gamma.tolist()))+"]"))
+                    f.write("initial_beta ={}\n".format("["+", ".join(str(value) for i, value in enumerate(initial_beta.tolist())) +"]"))
+                    f.write("delta_gamma  ={}\n".format(delta_gamma))
+                    f.write("delta_beta   ={}\n".format(delta_beta))
+                    f.write("iteration    ={}\n".format(iteration))
+
+
 
     pool.close()
     pool.join()
