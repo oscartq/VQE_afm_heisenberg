@@ -1,4 +1,4 @@
-import toml
+import tomllib
 import glob
 import os
 import pandas as pd
@@ -7,53 +7,52 @@ from datetime import datetime
 import numpy as np
 
 # TOMLファイルからディレクトリを読み込む
-with open('graphics.toml', 'r') as f:
-    config = toml.load(f)
-    directory = config['directory']
-    csv_prefix = config['csv_prefix']
-    save_fig_directory = config['save_fig_directory']
-    coulomb_list = config['coulomb']
-    number_p_list = config['number_p']
+with open('graphics.toml', 'rb') as f:
+    config = tomllib.load(f)
 
-# coulombの範囲を定義
-# coulomb_range = range(8, 19, 2)
-# number_pの範囲を定義
-# number_p_range = range(1, 11)
+table_name = '72_bcs_hubbard'
+directory = config[table_name]['directory']
+csv_prefix = config[table_name]['csv_prefix']
+save_fig_directory = config[table_name]['save_fig_directory']
+coulomb_list = config[table_name]['coulomb']
+number_p_list = config[table_name]['number_p']
+number_l = config[table_name]['number_l']
 
 # マーカーと線種のリストを定義
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
 linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']
-
-plt.figure(figsize=(10, 6))  # 一度だけ図のサイズを定義
-
+plot_label_before_equal = "coulomb" 
+x_label = "iteration"
+y_label = r"$E-E_{ext}/E_{ext}$"
+title = ""
+fontsize = 20
+labelsize = 16
+figsize=(10, 6)
 # 各coulomb, number_pに対して最新のファイルを検索し、最終行のデータを抽出
-for i, coulomb in enumerate(coulomb_list):
-    energy_per_length_values = {}
-    for number_p in number_p_list:
-        pattern = os.path.join(directory, f"{csv_prefix}_l{coulomb:02}_p{number_p}_*.csv")
-        files = glob.glob(pattern)
-        if files:
-            latest_file = max(files, key=os.path.getmtime)
-            print(latest_file)
-            df = pd.read_csv(latest_file)
-            if 'energy' in df.columns:
-                # 最終行のenergy列の値を取得し、複素数の実数部を抽出
-                energy_value = df['energy'].iloc[-1]
-                energy_real = np.real(complex(energy_value.replace('j', 'j')))
-                energy_per_length_values[number_p] = energy_real / coulomb
+for number_p in number_p_list:
+    for length in number_l:
+        fig_name = f"e-fidelity_iter/{csv_prefix}_l{length:02}_p{number_p}_e-fidelity_iter_on_coulomb.png"
+        plt.figure(figsize=figsize)
+         
+        for i, coulomb in enumerate(coulomb_list):
+            exact_energy = config[f"{table_name}"][f"exact_energy_l{length:02}Ut{coulomb:02}"]['exact_value']
+            pattern = os.path.join(directory, f"{csv_prefix}_Ut{coulomb:02}_l{length:02}_p{number_p}_*.csv")
+            files = glob.glob(pattern)
+            if files:
+                latest_file = max(files, key=os.path.getmtime)
+                print(latest_file)
+                df = pd.read_csv(latest_file)   
+                plt.plot(df['iter'], df['energy'].apply(lambda x: (complex(x).real/exact_energy)-1), 
+                        marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'{plot_label_before_equal} = {coulomb}')
 
-    # 各l_numberごとに異なるマーカーと線種でグラフをプロット
-    plt.plot(list(energy_per_length_values.keys()), list(energy_per_length_values.values()),
-             marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {coulomb}')
+        plt.tick_params(axis='both', labelsize=labelsize) 
+        plt.xlabel(x_label, fontsize=fontsize) 
+        plt.ylabel(y_label, fontsize=fontsize) 
+        plt.title(title, fontsize=fontsize) 
+        plt.legend(fontsize=fontsize) 
+        plt.legend(loc='upper right')
+        plt.grid(True)
 
-plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベルのフォントサイズ
-plt.xlabel('p', fontsize=20)  # x軸ラベルのフォントサイズ
-plt.ylabel('Energy / L', fontsize=20)  # y軸ラベルのフォントサイズ
-# plt.title('Energy per length vs. p_number', fontsize=16)  # タイトルのフォントサイズ
-plt.legend(fontsize=20)  # 凡例のフォントサイズ
-plt.legend(loc='upper right')
-plt.grid(True)
-
-# 画像ファイルとして保存
-plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_energy_per_length_vs_p.png"), format='png', dpi=300)
-plt.close()  # プロット後にクローズする
+        # 画像ファイルとして保存
+        plt.savefig(os.path.join(save_fig_directory, fig_name), format='png', dpi=300)
+        plt.close()  # プロット後にクローズする

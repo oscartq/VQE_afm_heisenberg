@@ -57,8 +57,8 @@ def main():
 
     # run for p and l
     for p in p_list:
-        initial_gamma = np.array([0.02 for i in range(p)])
-        initial_beta  = np.array([0.02 for i in range(p)])
+        initial_gamma = np.array([0.2*i for i in range(p)])
+        initial_beta  = np.array([0.2*i for i in range(p)])
         
         for length in length_list:
             for coulomb in coulomb_list:

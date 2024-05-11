@@ -38,12 +38,12 @@ def main():
         os.mkdir(results_dir_path)
 
 
-    pool = mp.Pool(4)
+    pool = mp.Pool(8)
 
     # run for p and l
     for p in p_list:
-        initial_gamma = np.array([0.2 for i in range(p)])
-        initial_beta  = np.array([0.2 for i in range(p)])
+        initial_gamma = np.array([0.2*i for i in range(p)])
+        initial_beta  = np.array([0.2*i for i in range(p)])
         # initial_gamma = np.array([0.6132419193163514, 0.3016522405669093, 0.5736398110166192, 0.4384700390510261, 0.4716176535002887,  0.3828570474870503, 0.6190425246022642,  0.5603716843761504])
         # initial_beta  = np.array([0.3267469275742769, 0.5664307828992605, 0.33639229321852326, 0.7184683829545975, 0.46605566004291177, 0.636924406979233, 0.17602696735411882,0.7614382724277675])
         for length in length_list:

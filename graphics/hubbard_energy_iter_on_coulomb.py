@@ -42,16 +42,6 @@ for number_p in number_p_list:
                 plt.plot(df['iter'], df['energy'].apply(lambda x: complex(x).real), 
                         marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'{plot_label_before_equal} = {coulomb}')
 
-                # if 'energy' in df.columns:
-                #     # 最終行のenergy列の値を取得し、複素数の実数部を抽出
-
-                #     energy_value = df['energy'].iloc[-1]
-                #     energy_real = np.real(complex(energy_value.replace('j', 'j')))
-                #     energy_values[number_p] = energy_real
-
-                # plt.plot(list(energy_values.keys()), list(energy_values.values()),
-                        # marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'{plot_label_before_equal} = {coulomb}')
-
         plt.tick_params(axis='both', labelsize=labelsize) 
         plt.xlabel(x_label, fontsize=fontsize) 
         plt.ylabel(y_label, fontsize=fontsize) 
