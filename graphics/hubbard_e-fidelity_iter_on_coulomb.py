@@ -10,7 +10,7 @@ import numpy as np
 with open('graphics.toml', 'rb') as f:
     config = tomllib.load(f)
 
-table_name = '72_bcs_hubbard'
+table_name = '70_bcs_hubbard'
 directory = config[table_name]['directory']
 csv_prefix = config[table_name]['csv_prefix']
 save_fig_directory = config[table_name]['save_fig_directory']
@@ -25,15 +25,15 @@ plot_label_before_equal = "coulomb"
 x_label = "iteration"
 y_label = r"$E-E_{ext}/E_{ext}$"
 title = ""
-fontsize = 20
-labelsize = 16
+fontsize = 24
+labelsize = 20
+markersize = 3
 figsize=(10, 6)
 # 各coulomb, number_pに対して最新のファイルを検索し、最終行のデータを抽出
 for number_p in number_p_list:
     for length in number_l:
         fig_name = f"e-fidelity_iter/{csv_prefix}_l{length:02}_p{number_p}_e-fidelity_iter_on_coulomb.png"
         plt.figure(figsize=figsize)
-         
         for i, coulomb in enumerate(coulomb_list):
             exact_energy = config[f"{table_name}"][f"exact_energy_l{length:02}Ut{coulomb:02}"]['exact_value']
             pattern = os.path.join(directory, f"{csv_prefix}_Ut{coulomb:02}_l{length:02}_p{number_p}_*.csv")
@@ -42,15 +42,20 @@ for number_p in number_p_list:
                 latest_file = max(files, key=os.path.getmtime)
                 print(latest_file)
                 df = pd.read_csv(latest_file)   
-                plt.plot(df['iter'], df['energy'].apply(lambda x: (complex(x).real/exact_energy)-1), 
-                        marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'{plot_label_before_equal} = {coulomb}')
+                plt.plot(df['iter'], df['energy'].apply(lambda x: abs((complex(x).real/exact_energy)-1)), 
+                        marker=markers[i % len(markers)], 
+                        linestyle=linestyles[i % len(linestyles)], 
+                        label=f'{plot_label_before_equal} = {coulomb}',
+                        markersize=markersize)
 
+        plt.yscale('log')
+        # plt.ylim(top=1.0)
         plt.tick_params(axis='both', labelsize=labelsize) 
         plt.xlabel(x_label, fontsize=fontsize) 
         plt.ylabel(y_label, fontsize=fontsize) 
         plt.title(title, fontsize=fontsize) 
         plt.legend(fontsize=fontsize) 
-        plt.legend(loc='upper right')
+        plt.legend(loc='right')
         plt.grid(True)
 
         # 画像ファイルとして保存
