@@ -57,9 +57,15 @@ def main():
 
     # run for p and l
     for p in p_list:
-        initial_gamma = np.array([0.2*i for i in range(p)])
-        initial_beta  = np.array([0.2*i for i in range(p)])
-        
+        try:
+            parameter = int(len(config[output_file_prefix]["list_v_parameter"])/2)
+            initial_gamma = np.array([config[output_file_prefix]["list_v_parameter"][2*i] for i in range(parameter)])
+            initial_beta  = np.array([config[output_file_prefix]["list_v_parameter"][2*i+1] for i in range(parameter)])
+        except KeyError:
+            initial_gamma = np.array([0.2*i for i in range(p)])
+            initial_beta  = np.array([0.2*i for i in range(p)])
+
+
         for length in length_list:
             for coulomb in coulomb_list:
                 t_delta = datetime.timedelta(hours=9)
