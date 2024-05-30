@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-# TOMLファイルからディレクトリを読み込む
+# Read the directory from the TOML file
 with open('graphics.toml', 'r') as f:
     config = toml.load(f)
     directory = config['directory']
@@ -14,20 +14,20 @@ with open('graphics.toml', 'r') as f:
     number_l_list = config['number_l']
     number_p_list = config['number_p']
 
-# number_lの範囲を定義
+# Define the range for number_l
 # number_l_range = range(8, 19, 2)
-# number_pの範囲を定義
+# Define the range for number_p
 # number_p_range = range(1, 11)
 
-# マーカーと線種のリストを定義
+# Define lists of markers and linestyles
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
 linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']
 
-plt.figure(figsize=(10, 6))  # 一度だけ図のサイズを定義
+plt.figure(figsize=(10, 6))  # Define the size of the figure only once
 
 T_values = {}
 
-# 各number_l, number_pに対して最新のファイルを検索し、最終行のデータを抽出
+# For each number_l and number_p, search for the latest file and extract the data from the last row
 for i, number_l in enumerate(number_l_list):
     number_p = int(number_l / 2)
     pattern = os.path.join(directory, f"{csv_prefix}_l{number_l:02}_p{int(number_p)}_*.csv")
@@ -35,26 +35,26 @@ for i, number_l in enumerate(number_l_list):
     if files:
         latest_file = max(files, key=os.path.getmtime)
         df = pd.read_csv(latest_file)
-        # 'gamma[N]'と'beta[N]'の合計をTとする
+        # Sum of 'gamma[N]' and 'beta[N]' columns is T
         gamma_columns = [col for col in df.columns if 'gamma' in col]
         beta_columns = [col for col in df.columns if 'beta' in col]
         T_values[number_l] = df[gamma_columns + beta_columns].sum(axis=1).iloc[-1]
 
-# y軸のメジャーフォーマッターを整数部分のみに設定
+# Set the major formatter for the y-axis to only show integer parts
 # plt.gca().yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}'))
 
-# グラフにプロット
+# Plot on the graph
 plt.plot(list(T_values.keys()), list(T_values.values()), marker='o')
 
-plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベルのフォントサイズ
-plt.xlabel('Number_l', fontsize=20)  # x軸ラベルのフォントサイズ
-plt.ylabel('T', fontsize=20)  # y軸ラベルのフォントサイズ
+plt.tick_params(axis='both', labelsize=16)  # Font size for tick labels on x-axis and y-axis
+plt.xlabel('Number_l', fontsize=20)  # Font size for x-axis label
+plt.ylabel('T', fontsize=20)  # Font size for y-axis label
 plt.grid(True)
 plt.legend(loc='upper right')
 print(list(T_values.keys()))
 print(list(T_values.values()))
 # plt.yticks(min(list(T_values.values())),max(list(T_values.values()))+1,1)
 
-# 画像ファイルとして保存
+# Save as an image file
 plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_T_vs_number_l.png"), format='png', dpi=300)
-plt.close()  # プロット後にクローズする
+plt.close()  # Close the plot after plotting

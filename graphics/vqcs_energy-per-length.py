@@ -3,10 +3,9 @@ import glob
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
 import numpy as np
 
-# TOMLファイルからディレクトリを読み込む
+# Read directories from the TOML file
 with open('graphics.toml', 'r') as f:
     config = toml.load(f)
     directory = config['directory']
@@ -15,18 +14,13 @@ with open('graphics.toml', 'r') as f:
     number_l_list = config['number_l']
     number_p_list = config['number_p']
 
-# number_lの範囲を定義
-# number_l_range = range(8, 19, 2)
-# number_pの範囲を定義
-# number_p_range = range(1, 11)
-
-# マーカーと線種のリストを定義
+# Define lists for markers and linestyles
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
 linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']
 
-plt.figure(figsize=(10, 6))  # 一度だけ図のサイズを定義
+plt.figure(figsize=(10, 6))  # Define the figure size once
 
-# 各number_l, number_pに対して最新のファイルを検索し、最終行のデータを抽出
+# For each number_l and number_p, search for the latest file and extract data from the last row
 for i, number_l in enumerate(number_l_list):
     energy_per_length_values = {}
     for number_p in number_p_list:
@@ -37,23 +31,22 @@ for i, number_l in enumerate(number_l_list):
             print(latest_file)
             df = pd.read_csv(latest_file)
             if 'energy' in df.columns:
-                # 最終行のenergy列の値を取得し、複素数の実数部を抽出
+                # Get the value from the 'energy' column in the last row and extract the real part of the complex number
                 energy_value = df['energy'].iloc[-1]
                 energy_real = np.real(complex(energy_value.replace('j', 'j')))
                 energy_per_length_values[number_p] = energy_real / number_l
 
-    # 各l_numberごとに異なるマーカーと線種でグラフをプロット
+    # Plot the graph with different markers and linestyles for each l_number
     plt.plot(list(energy_per_length_values.keys()), list(energy_per_length_values.values()),
              marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {number_l}')
 
-plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベルのフォントサイズ
-plt.xlabel('p', fontsize=20)  # x軸ラベルのフォントサイズ
-plt.ylabel('Energy / L', fontsize=20)  # y軸ラベルのフォントサイズ
-# plt.title('Energy per length vs. p_number', fontsize=16)  # タイトルのフォントサイズ
-plt.legend(fontsize=20)  # 凡例のフォントサイズ
-plt.legend(loc='upper right')
+plt.tick_params(axis='both', labelsize=16)  # Font size for x and y axis tick labels
+plt.xlabel('p', fontsize=20)  # Font size for x-axis label
+plt.ylabel('Energy / L', fontsize=20)  # Font size for y-axis label
+# plt.title('Energy per length vs. p_number', fontsize=16)  # Font size for the title
+plt.legend(fontsize=20, loc='upper right')  # Font size for the legend and set location
 plt.grid(True)
 
-# 画像ファイルとして保存
+# Save the plot as an image file
 plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_energy_per_length_vs_p.png"), format='png', dpi=300)
-plt.close()  # プロット後にクローズする
+plt.close()  # Close the plot after plotting

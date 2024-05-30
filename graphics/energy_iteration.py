@@ -4,10 +4,9 @@ import toml
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
 import numpy as np
 
-# TOMLファイルからディレクトリを読み込む
+# Read directories from the TOML file
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f:
     config = toml.load(f)
     directory = config['directory']
@@ -16,16 +15,16 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     number_l_list = config['number_l']
     number_p_list = config['number_p']
 
-# マーカーと線種のリストを定義
+# Define lists for markers and linestyles
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
 linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']
 
+plt.figure(figsize=(10, 6))  # Define the figure size once
 
-# 各number_l, number_pに対して最新のファイルを検索し、最終行のデータを抽出
+# For each number_l, number_p, search for the latest file and extract the last row's data
 for i, number_l in enumerate(number_l_list):
     energy_per_length_values = {}
     for number_p in number_p_list:
-        plt.figure(figsize=(10, 6))  # 一度だけ図のサイズを定義
         pattern = os.path.join(directory, f"{csv_prefix}_l{number_l:02}_p{number_p}_*.csv")
         files = glob.glob(pattern)
         if files:
@@ -33,23 +32,23 @@ for i, number_l in enumerate(number_l_list):
             print(latest_file)
             df = pd.read_csv(latest_file)
             if 'energy' in df.columns:
-                # 最終行のenergy列の値を取得し、複素数の実数部を抽出
+                # Extract the real part of the last row in the energy column
                 energy_value = df['energy'].iloc[-1]
                 energy_real = np.real(complex(energy_value.replace('j', 'j')))
                 energy_per_length_values[number_p] = energy_real / number_l
 
-            # 各l_numberごとに異なるマーカーと線種でグラフをプロット
-            plt.plot(list(energy_per_length_values.keys()), list(energy_per_length_values.values()),
-                    marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {number_l}')
+    # Plot each number_l with different markers and linestyles
+    if energy_per_length_values:
+        plt.plot(list(energy_per_length_values.keys()), list(energy_per_length_values.values()),
+                 marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {number_l}')
 
-        plt.tick_params(axis='both', labelsize=16)  # x軸とy軸の目盛りラベルのフォントサイズ
-        plt.xlabel('p', fontsize=20)  # x軸ラベルのフォントサイズ
-        plt.ylabel('Energy / L', fontsize=20)  # y軸ラベルのフォントサイズ
-        # plt.title('Energy per length vs. p_number', fontsize=16)  # タイトルのフォントサイズ
-        plt.legend(fontsize=20)  # 凡例のフォントサイズ
-        plt.legend(loc='upper right')
-        plt.grid(True)
+plt.tick_params(axis='both', labelsize=16)  # Font size for x and y axis labels
+plt.xlabel('p', fontsize=20)  # Font size for x-axis label
+plt.ylabel('Energy / L', fontsize=20)  # Font size for y-axis label
+plt.legend(fontsize=20)  # Font size for legend
+plt.legend(loc='upper right')
+plt.grid(True)
 
-    # 画像ファイルとして保存
-    plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_energy_iteration.png"), format='png', dpi=300)
-    plt.close()  # プロット後にクローズする
+# Save the plot as an image file
+plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_energy_iteration.png"), format='png', dpi=300)
+plt.close()  # Close the plot after saving
