@@ -12,7 +12,7 @@ from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent
 
 
-def main():
+def main(): #Main function
     output_file_prefix = "4-5_afm-heisenberg"
 
     # input a config file
