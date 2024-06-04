@@ -173,8 +173,38 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
     derivative = (f(gamma=gamma, beta=var_plus).real - f(gamma=gamma, beta=var_minus).real) / (2 * h)
     return derivative
 
+# def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
+#     gamma, beta = initial_gamma.copy(), initial_beta.copy()
+
+#     with open(filepath, mode='a', newline='') as f:
+#         writer = csv.writer(f)
+#         headline = ["iter", "energy"]
+#         for p in range(int(len(initial_gamma))):
+#             headline.append("gamma[{}]".format(p))
+#             headline.append("beta[{}]".format(p))
+#         print(headline)
+#         writer.writerow(headline)
+
+#         for iter in range(iteration):
+#             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
+#             # print(grad_beta, grad_gamma)
+#             gamma -= alpha * grad_gamma
+#             beta -= alpha * grad_beta
+#             energy = function(gamma=gamma, beta=beta)
+
+#             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
+#             writer.writerow(record)
+#             if figure:
+#                 print(record)
+
+    # return gamma, beta
+
+import csv
+import multiprocessing as mp
+
 def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
+    min_iterations = max(1, int(0.1 * iteration))  # Ensure at least 10% of the total iterations, minimum of 1
 
     with open(filepath, mode='a', newline='') as f:
         writer = csv.writer(f)
@@ -186,10 +216,25 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
         writer.writerow(headline)
 
         for iter in range(iteration):
+            # Store the previous values of gamma and beta
+            prev_gamma = gamma.copy()
+            prev_beta = beta.copy()
+            
             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
             # print(grad_beta, grad_gamma)
+            
             gamma -= alpha * grad_gamma
             beta -= alpha * grad_beta
+            
+            # Calculate the relative changes
+            gamma_change = max(abs((gamma - prev_gamma) / (prev_gamma + 1e-10)))  # Adding a small constant to avoid division by zero
+            beta_change = max(abs((beta - prev_beta) / (prev_beta + 1e-10)))
+            
+            # Check if the changes are below the threshold and if we have passed the minimum iteration count
+            if iter >= min_iterations and gamma_change < 0.0001 and beta_change < 0.0001:
+                print(f"Converged at iteration {iter}")
+                break
+            
             energy = function(gamma=gamma, beta=beta)
 
             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
