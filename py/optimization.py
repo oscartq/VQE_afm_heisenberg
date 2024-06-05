@@ -199,11 +199,6 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
 
     # return gamma, beta
 
-import csv
-import multiprocessing as mp
-
-#TODO: Look at the energy after each iteration instead of the gamma values, possibly? 2.5 hours
-
 def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
