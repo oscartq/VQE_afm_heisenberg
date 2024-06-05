@@ -202,9 +202,11 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
 import csv
 import multiprocessing as mp
 
+#TODO: Look at the energy after each iteration instead of the gamma values, possibly? 2.5 hours
+
 def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
-    min_iterations = max(1, int(0.1 * iteration))  # Ensure at least 10% of the total iterations, minimum of 1
+    min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
 
     with open(filepath, mode='a', newline='') as f:
         writer = csv.writer(f)
@@ -215,7 +217,8 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
         print(headline)
         writer.writerow(headline)
 
-        for iter in range(iteration):
+        iter = 0
+        while True:
             # Store the previous values of gamma and beta
             prev_gamma = gamma.copy()
             prev_beta = beta.copy()
@@ -234,12 +237,17 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
             if iter >= min_iterations and gamma_change < 0.0001 and beta_change < 0.0001:
                 print(f"Converged at iteration {iter}")
                 break
-            
+
             energy = function(gamma=gamma, beta=beta)
 
             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
             writer.writerow(record)
             if figure:
                 print(record)
+
+            if iteration != -1 and iter >= iteration - 1:
+                break
+
+            iter += 1
 
     return gamma, beta
