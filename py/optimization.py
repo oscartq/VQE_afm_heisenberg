@@ -174,6 +174,7 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
     derivative = (f(gamma=gamma, beta=var_plus).real - f(gamma=gamma, beta=var_minus).real) / (2 * h)
     return derivative
 
+#L-BFGS-B for optimization, scipy.optimize
 def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
