@@ -42,9 +42,9 @@ for i, number_l in enumerate(number_l_list):
              marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {number_l}')
 
 plt.tick_params(axis='both', labelsize=16)  # Font size for x and y axis tick labels
-plt.xlabel('p', fontsize=20)  # Font size for x-axis label
-plt.ylabel('Energy', fontsize=20)  # Font size for y-axis label
-plt.title(f"Energy per length vs. p_number\n{csv_prefix}", fontsize=16)  # Font size for the title
+plt.xlabel('$p$', fontsize=20)  # Font size for x-axis label
+plt.ylabel('$E$', fontsize=20)  # Font size for y-axis label
+plt.title(f"Energy per length vs. p-number\n{csv_prefix}", fontsize=16)  # Font size for the title
 plt.legend(fontsize=20)  # Font size for the legend
 plt.grid(True)
 

@@ -52,12 +52,12 @@ for i, number_l in enumerate(number_l_list):
              marker=markers[i % len(markers)], linestyle=linestyles[i % len(linestyles)], label=f'L = {number_l}')
 
 plt.tick_params(axis='both', labelsize=16)  # Font size of the tick labels on the x-axis and y-axis
-plt.xlabel('p', fontsize=20)  # Font size of the x-axis label
-plt.ylabel('Energy/Exact_energy', fontsize=20)  # Font size of the y-axis label
-plt.title(f"Relative energy per length vs. p_number\n{csv_prefix}", fontsize=16)  # Font size of the title
+plt.xlabel('$p$', fontsize=20)  # Font size of the x-axis label
+plt.ylabel('$E$/$E_{exact}$', fontsize=20)  # Font size of the y-axis label
+plt.title(f"Relative energy vs. p-number\n{csv_prefix}", fontsize=16)  # Font size of the title
 plt.legend(fontsize=20)  # Font size of the legend
 plt.grid(True)
 
 # Save as an image file
-plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_relative_energy_vs_p.png"), format='png', dpi=300)
+plt.savefig(os.path.join(save_fig_directory, f"{csv_prefix}_relative_energy_vs_p.pdf"), format='pdf', dpi=300)
 plt.close()  # Close after plotting
