@@ -3,14 +3,12 @@ import datetime
 from functools import partial
 import tomllib
 import multiprocessing as mp
-
 import cirq
 import openfermion
 import numpy as np
 from anzats import Anzats
 from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent
-
 
 def main(): #Main function
     output_file_prefix = "4-5_afm-heisenberg"
@@ -63,12 +61,12 @@ def main(): #Main function
 
             gamma, beta = optimize_by_gradient_descent_multiprocess(
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args), 
-                initial_gamma=initial_gamma, 
-                initial_beta=initial_beta, 
-                alpha=alpha, 
-                delta_gamma=delta_gamma, 
-                delta_beta=delta_beta, 
-                iteration=iteration, 
+                initial_gamma=initial_gamma,
+                initial_beta=initial_beta,
+                alpha=alpha,
+                delta_gamma=delta_gamma,
+                delta_beta=delta_beta,
+                iteration=iteration,
                 figure=True,
                 filepath=csvpath,
                 pool=pool)

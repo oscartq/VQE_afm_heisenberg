@@ -15,6 +15,7 @@ from anzats import Anzats
 # from optimization import get_gradient, optimize_by_gradient_descent
 
 from multiprocessing import Process, Pipe, Pool
+from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 
 def get_gradient(function, gamma: np.array, beta: np.array, delta_gamma, delta_beta, iter):
     grad_gamma = np.zeros_like(gamma)
@@ -175,6 +176,7 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
 
 # def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
 #     gamma, beta = initial_gamma.copy(), initial_beta.copy()
+#     min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
 
 #     with open(filepath, mode='a', newline='') as f:
 #         writer = csv.writer(f)
@@ -185,11 +187,27 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
 #         print(headline)
 #         writer.writerow(headline)
 
-#         for iter in range(iteration):
+#         iter = 0
+#         while True:
+#             # Store the previous values of gamma and beta
+#             prev_gamma = gamma.copy()
+#             prev_beta = beta.copy()
+            
 #             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
 #             # print(grad_beta, grad_gamma)
+            
 #             gamma -= alpha * grad_gamma
 #             beta -= alpha * grad_beta
+            
+#             # Calculate the relative changes
+#             gamma_change = max(abs((gamma - prev_gamma) / (prev_gamma + 1e-10)))  # Adding a small constant to avoid division by zero
+#             beta_change = max(abs((beta - prev_beta) / (prev_beta + 1e-10)))
+            
+#             # Check if the changes are below the threshold and if we have passed the minimum iteration count
+#             if iter >= min_iterations and gamma_change < 0.0001 and beta_change < 0.0001:
+#                 print(f"Converged at iteration {iter}")
+#                 break
+
 #             energy = function(gamma=gamma, beta=beta)
 
 #             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
@@ -197,7 +215,12 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
 #             if figure:
 #                 print(record)
 
-    # return gamma, beta
+#             if iteration != -1 and iter >= iteration - 1:
+#                 break
+
+#             iter += 1
+
+#     return gamma, beta
 
 def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
@@ -213,36 +236,31 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
         writer.writerow(headline)
 
         iter = 0
+        prev_energy = float('inf')  # Initialize with a large number
+
         while True:
-            # Store the previous values of gamma and beta
-            prev_gamma = gamma.copy()
-            prev_beta = beta.copy()
-            
             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
-            # print(grad_beta, grad_gamma)
             
             gamma -= alpha * grad_gamma
             beta -= alpha * grad_beta
             
-            # Calculate the relative changes
-            gamma_change = max(abs((gamma - prev_gamma) / (prev_gamma + 1e-10)))  # Adding a small constant to avoid division by zero
-            beta_change = max(abs((beta - prev_beta) / (prev_beta + 1e-10)))
-            
-            # Check if the changes are below the threshold and if we have passed the minimum iteration count
-            if iter >= min_iterations and gamma_change < 0.0001 and beta_change < 0.0001:
-                print(f"Converged at iteration {iter}")
-                break
-
             energy = function(gamma=gamma, beta=beta)
+            energy_change = abs((energy - prev_energy) / (prev_energy + 1e-10))  # Relative change in energy
 
             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
             writer.writerow(record)
             if figure:
                 print(record)
 
+            # Check if the energy change is below the threshold and if we have passed the minimum iteration count
+            if iter >= min_iterations and energy_change < 0.0001:
+                print(f"Converged at iteration {iter}")
+                break
+
             if iteration != -1 and iter >= iteration - 1:
                 break
 
+            prev_energy = energy
             iter += 1
-
+            
     return gamma, beta
