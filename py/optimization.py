@@ -3,6 +3,8 @@ import sys
 import datetime
 import csv 
 import multiprocessing as mp
+import numpy as np
+from scipy.optimize import minimize
 
 import cirq
 import openfermion
@@ -13,7 +15,6 @@ Pi=3.1415
 from anzats import Anzats
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
 # from optimization import get_gradient, optimize_by_gradient_descent
-
 from multiprocessing import Process, Pipe, Pool
 from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 
@@ -223,46 +224,34 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-# code for convergence of the energy instead of gamma and beta
-# def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
-#     gamma, beta = initial_gamma.copy(), initial_beta.copy()
-#     min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds=None, max_iter=1000, figure=True, filepath="", pool=mp.Pool(2)):
+    initial_params = np.concatenate([initial_gamma, initial_beta])
 
-#     with open(filepath, mode='a', newline='') as f:
-#         writer = csv.writer(f)
-#         headline = ["iter", "energy"]
-#         for p in range(int(len(initial_gamma))):
-#             headline.append("gamma[{}]".format(p))
-#             headline.append("beta[{}]".format(p))
-#         print(headline)
-#         writer.writerow(headline)
+    def wrapped_function(params):
+        gamma, beta = np.split(params, 2)
+        return function(gamma=gamma, beta=beta)
 
-#         iter = 0
-#         prev_energy = float('inf')  # Initialize with a large number
+    with open(filepath, mode='a', newline='') as f:
+        writer = csv.writer(f)
+        headline = ["iter", "energy"]
+        for p in range(int(len(initial_gamma))):
+            headline.append("gamma[{}]".format(p))
+            headline.append("beta[{}]".format(p))
+        print(headline)
+        writer.writerow(headline)
 
-#         while True:
-#             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
-            
-#             gamma -= alpha * grad_gamma
-#             beta -= alpha * grad_beta
-            
-#             energy = function(gamma=gamma, beta=beta)
-#             energy_change = abs((energy - prev_energy) / (prev_energy + 1e-10))  # Relative change in energy
+        iter_count = [0]  # Mutable counter to track iteration
 
-#             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
-#             writer.writerow(record)
-#             if figure:
-#                 print(record)
+        def callback(params):
+            iter_count[0] += 1
+            gamma, beta = np.split(params, 2)
+            energy = wrapped_function(params)
+            record = [iter_count[0], energy] + [val for pair in zip(gamma, beta) for val in pair]
+            writer.writerow(record)
+            if figure:
+                print(record)
 
-#             # Check if the energy change is below the threshold and if we have passed the minimum iteration count
-#             if iter >= min_iterations and energy_change < 0.000001: #0.0001
-#                 print(f"Converged at iteration {iter}")
-#                 break
+        result = minimize(wrapped_function, initial_params, method='L-BFGS-B', bounds=bounds, callback=callback, options={'maxiter': max_iter})
 
-#             if iteration != -1 and iter >= iteration - 1:
-#                 break
-
-#             prev_energy = energy
-#             iter += 1
-            
-#     return gamma, beta
+    gamma, beta = np.split(result.x, 2)
+    return gamma, beta
