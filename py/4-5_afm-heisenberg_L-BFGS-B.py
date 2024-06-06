@@ -54,8 +54,8 @@ def main(): # Main function
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args),
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
-                bounds=[(0, 1)] * (2 * p),  # Assuming bounds for gamma and beta
                 max_iter=iteration,
+                bounds=[(0, 1)] * (2 * p),  # Assuming bounds for gamma and beta
                 figure=True,
                 filepath=csvpath,
                 pool=pool)

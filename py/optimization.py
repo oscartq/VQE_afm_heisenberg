@@ -224,7 +224,7 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds=None, max_iter=1000, figure=True, filepath="", pool=mp.Pool(2)):
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, iteration, bounds=None,  figure=True, filepath="", pool=mp.Pool(2)):
     initial_params = np.concatenate([initial_gamma, initial_beta])
 
     def wrapped_function(params):
@@ -251,7 +251,7 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds=None, max_i
             if figure:
                 print(record)
 
-        result = minimize(wrapped_function, initial_params, method='L-BFGS-B', bounds=bounds, callback=callback, options={'maxiter': max_iter})
+        result = minimize(wrapped_function, initial_params, method='L-BFGS-B', bounds=bounds, callback=callback, options={'maxiter': iteration})
 
     gamma, beta = np.split(result.x, 2)
     return gamma, beta
