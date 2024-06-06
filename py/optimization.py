@@ -224,34 +224,40 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, iteration, bounds=None,  figure=True, filepath="", pool=mp.Pool(2)):
+def optimize_by_lbfgsb(function, function_args, initial_gamma, initial_beta, max_iter, bounds=None, figure=True, filepath="", pool=mp.Pool(2)):
+    gamma, beta = initial_gamma.copy(), initial_beta.copy()
     initial_params = np.concatenate([initial_gamma, initial_beta])
-
-    def wrapped_function(params):
-        gamma, beta = np.split(params, 2)
-        return function(gamma=gamma, beta=beta)
-
-    with open(filepath, mode='a', newline='') as f:
+    
+    # Write the header to the CSV file
+    with open(filepath, mode='w', newline='') as f:
         writer = csv.writer(f)
         headline = ["iter", "energy"]
         for p in range(int(len(initial_gamma))):
             headline.append("gamma[{}]".format(p))
             headline.append("beta[{}]".format(p))
-        print(headline)
         writer.writerow(headline)
 
         iter_count = [0]  # Mutable counter to track iteration
+
+        def wrapped_function(params):
+            gamma, beta = np.split(params, 2)
+            return function(function_args, gamma, beta)
 
         def callback(params):
             iter_count[0] += 1
             gamma, beta = np.split(params, 2)
             energy = wrapped_function(params)
             record = [iter_count[0], energy] + [val for pair in zip(gamma, beta) for val in pair]
-            writer.writerow(record)
-            if figure:
-                print(record)
+            
+            # Open the file in append mode and write the record
+            with open(filepath, mode='a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(record)
+                if figure:
+                    print(record)
+                f.flush()  # Ensure the buffer is flushed and data is written
 
-        result = minimize(wrapped_function, initial_params, method='L-BFGS-B', bounds=bounds, callback=callback, options={'maxiter': iteration})
-
-    gamma, beta = np.split(result.x, 2)
+        result = minimize(wrapped_function, initial_params, method='L-BFGS-B', bounds=bounds, callback=callback, options={'maxiter': max_iter})
+        
+        gamma, beta = np.split(result.x, 2)
     return gamma, beta
