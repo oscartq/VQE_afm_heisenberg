@@ -117,7 +117,7 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
         circuitZ.append(cirq.Z(qubits[(i+1)]))
         vector2 = simulator.simulate(circuitZ).state_vector()
         value += np.dot(vector2.conj(), vector)
-    return value
+    return np.real(value)
 
 class ToricCodeArgs():
     def __init__(self, length, qsim_option):

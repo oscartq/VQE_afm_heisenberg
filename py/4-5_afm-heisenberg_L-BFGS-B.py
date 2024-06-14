@@ -21,6 +21,7 @@ def main(): # Main function
     p_list = config[output_file_prefix]["p_list"]
     iteration = config[output_file_prefix]["iteration"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]
+    
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
 
@@ -55,13 +56,8 @@ def main(): # Main function
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
                 max_iter=iteration,
-                bounds=[(0, 1)] * (2 * p),  # Assuming bounds for gamma and beta
                 figure=True,
-                filepath=csvpath,
-                pool=pool)
-
-    pool.close()
-    pool.join()
+                filepath=csvpath)
 
 if __name__ == '__main__':
     main()
