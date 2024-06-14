@@ -1,4 +1,5 @@
 import os
+import shutil
 import datetime
 from functools import partial
 import tomllib
@@ -19,11 +20,16 @@ def main(): # Main function
 
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    iteration = config[output_file_prefix]["iteration"]
+    #iteration = config[output_file_prefix]["iteration"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]
     
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
+        print(f"Directory {results_dir_path} created.")
+    if os.path.exists(results_dir_path):
+        shutil.rmtree(results_dir_path)
+        os.mkdir(results_dir_path)
+        print(f"Directory {results_dir_path} cleared.")
 
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
@@ -47,7 +53,7 @@ def main(): # Main function
                 f.write("p            ={}\n".format(p))
                 f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
                 f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
-                f.write("iteration    ={}\n".format(iteration))
+                #f.write("iteration    ={}\n".format(iteration))
 
             function_args = AFMHeisenbergArgs(length, qsim_option)
 
@@ -55,7 +61,6 @@ def main(): # Main function
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args),
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
-                max_iter=iteration,
                 figure=True,
                 filepath=csvpath)
 

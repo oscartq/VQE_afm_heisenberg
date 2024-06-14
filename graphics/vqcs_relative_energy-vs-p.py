@@ -1,6 +1,7 @@
 import toml
 import glob
 import os
+import shutil
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -22,7 +23,15 @@ with open('graphics.toml', 'r') as f:
     save_fig_directory = config['save_fig_directory']
     number_l_list = config['number_l']
     number_p_list = config['number_p']
-
+    
+if not os.path.exists('save_fig_directory'):
+    os.mkdir('save_fig_directory')
+    print(f"Directory {'save_fig_directory'} created.")
+if os.path.exists('save_fig_directory'):
+    shutil.rmtree('save_fig_directory')
+    os.mkdir('save_fig_directory')
+    print(f"Directory {'save_fig_directory'} cleared.")
+    
 # Define lists of markers and linestyles
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
 linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']

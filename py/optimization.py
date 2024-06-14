@@ -1,4 +1,5 @@
 import os 
+import shutil
 import sys
 import datetime
 import csv 
@@ -223,10 +224,40 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, max_iter, bounds=None, figure=True, filepath=""):
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, figure=True, filepath=""):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     initial_params = np.concatenate([initial_gamma, initial_beta])
     
+    def energy_function(params):
+        gamma, beta = np.split(params, 2)
+        energy = function(gamma=gamma, beta=beta)
+        return energy
+    
+    # Define the gradient function
+    def numerical_gradient(func, params, epsilon=1e-2):
+        grad = np.zeros_like(params)
+        for i in range(len(params)):
+            params_eps = np.array(params)
+            params_eps[i] += epsilon
+            grad[i] = (func(params_eps) - func(params)) / epsilon
+        return grad    
+    
+    history_params = []
+    history_energy = []
+
+    def callback(params):
+        history_params.append(params)
+        history_energy.append(energy_function(params))
+        gamma, beta = np.split(params, 2)
+        record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta)
+        # Open the file in append mode and write the record
+        with open(filepath, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(record)
+            if figure:
+                print(record)
+            f.flush()
+            
     # Write the header to the CSV file
     with open(filepath, mode='w', newline='') as f:
         writer = csv.writer(f)
@@ -235,34 +266,9 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, max_iter, bounds=N
             headline.append("gamma[{}]".format(p))
             headline.append("beta[{}]".format(p))
         writer.writerow(headline)
-
-    iter_count = [0]  # Use a list to track iteration count as a mutable object
-    
-    def energy_function(params):
-        gamma, beta = np.split(params, 2)
-        return function(gamma=gamma, beta=beta)
         
-    history_params = []
-    history_energy = []
+    result = minimize(energy_function, initial_params, method="L-BFGS-B", jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
 
-    def callback(params):
-        history_params.append(params)
-        energy = energy_function(params)
-        history_energy.append(energy)
-        gamma, beta = np.split(params, 2)
-        
-        record = [iter_count[0], energy] + list(gamma) + list(beta)
-
-        # Open the file in append mode and write the record
-        with open(filepath, mode='a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(record)
-            if figure:
-                print(record)
-            f.flush()  # Ensure the buffer is flushed and data is written
-    
-    result = minimize(energy_function, initial_params, method='L-BFGS-B', callback=callback) #, bounds=bounds, options={'maxiter': max_iter}
-    
     gamma, beta = np.split(result.x, 2)
     
     return gamma, beta
