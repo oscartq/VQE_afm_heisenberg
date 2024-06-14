@@ -224,7 +224,7 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, figure=True, filepath=""):
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, figure=True, filepath=""):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     initial_params = np.concatenate([initial_gamma, initial_beta])
     
@@ -234,7 +234,7 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, figure=True, filep
         return energy
     
     # Define the gradient function
-    def numerical_gradient(func, params, epsilon=1e-2):
+    def numerical_gradient(func, params, epsilon=grad_e):
         grad = np.zeros_like(params)
         for i in range(len(params)):
             params_eps = np.array(params)
@@ -267,8 +267,9 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, figure=True, filep
             headline.append("beta[{}]".format(p))
         writer.writerow(headline)
         
-    result = minimize(energy_function, initial_params, method="L-BFGS-B", jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
-
+    result = minimize(energy_function, initial_params, method="Nelder-Mead", bounds=bounds, callback=callback)#L-BFGS-B, jac=lambda params: numerical_gradient(energy_dummy, params)
+    #result = minimize(energy_function, initial_params, method="L-BFGS-B", bounds=bounds, jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
+    print(result)
     gamma, beta = np.split(result.x, 2)
     
     return gamma, beta

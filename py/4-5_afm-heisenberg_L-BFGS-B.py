@@ -61,6 +61,8 @@ def main(): # Main function
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args),
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
+                grad_e = 1e-2,
+                bounds = [(0,1)] * (2 * p),
                 figure=True,
                 filepath=csvpath)
 
