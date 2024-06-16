@@ -23,14 +23,14 @@ with open('graphics.toml', 'r') as f:
     save_fig_directory = config['save_fig_directory']
     number_l_list = config['number_l']
     number_p_list = config['number_p']
-    
-if not os.path.exists('save_fig_directory'):
-    os.mkdir('save_fig_directory')
-    print(f"Directory {'save_fig_directory'} created.")
-if os.path.exists('save_fig_directory'):
-    shutil.rmtree('save_fig_directory')
-    os.mkdir('save_fig_directory')
-    print(f"Directory {'save_fig_directory'} cleared.")
+
+if not os.path.exists(save_fig_directory):
+    os.mkdir(save_fig_directory)
+    print(f"Directory {save_fig_directory} created.")
+if os.path.exists(save_fig_directory):
+    shutil.rmtree(save_fig_directory)
+    os.mkdir(save_fig_directory)
+    print(f"Directory {save_fig_directory} cleared.")
     
 # Define lists of markers and linestyles
 markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', 'H', '*']
@@ -51,7 +51,7 @@ for i, number_l in enumerate(number_l_list):
             if 'energy' in df.columns:
                 # Get the value of the energy column from the last row and extract the real part of the complex number
                 energy_value = df['energy'].iloc[-1]
-                energy_real = np.real(complex(energy_value.replace('j', 'j')))
+                energy_real = energy_value #np.real(complex(energy_value.replace('j', 'j')))
                 exact_energy, state = get_exact_expectation_afm_heisenberg(number_l)
                 
                 energy_per_length_values[number_p] = energy_real/exact_energy
