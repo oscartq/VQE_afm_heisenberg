@@ -268,7 +268,7 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, fi
         writer.writerow(headline)
         
     #result = minimize(energy_function, initial_params, method="Nelder-Mead", bounds=bounds, callback=callback)#L-BFGS-B, jac=lambda params: numerical_gradient(energy_dummy, params)
-    result = minimize(energy_function, initial_params, method="L-BFGS-B", bounds=bounds, jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
+    result = minimize(energy_function, initial_params, method="BFGS", jac=lambda params: numerical_gradient(energy_function, params), bounds=bounds, callback=callback) #, method="L-BFGS-B"
     print(result)
     gamma, beta = np.split(result.x, 2)
     
