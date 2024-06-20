@@ -40,8 +40,9 @@ def main(): # Main function
 
     # Run for p and l
     for p in p_list:
-        initial_gamma = np.array([0.6 for i in range(p)])
-        initial_beta = np.array([0.6 for i in range(p)])
+        param = np.random.uniform(0,1)
+        initial_gamma = np.array([param for i in range(p)])
+        initial_beta = np.array([param for i in range(p)]) #TODO random numbers (0,1) (2*pi)
 
         for length in length_list:
             qsim_option = {'t': int(length / 2), 'f': 1}

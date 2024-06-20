@@ -282,5 +282,5 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, fi
     
     print(result)
     gamma, beta = np.split(result.x, 2)
-    
+    #adam opt -> tensor flow
     return gamma, beta
