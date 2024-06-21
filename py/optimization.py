@@ -3,6 +3,7 @@ import shutil
 import sys
 import datetime
 import csv 
+import time
 import multiprocessing as mp
 import numpy as np
 from scipy.optimize import minimize
@@ -224,7 +225,7 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, figure=True, filepath=""):
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=True, filepath=""):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     initial_params = np.concatenate([initial_gamma, initial_beta])
     
@@ -232,15 +233,6 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, fi
         gamma, beta = np.split(params, 2)
         energy = function(gamma=gamma, beta=beta)
         return energy
-    
-    # Define the gradient function
-    def numerical_gradient(func, params, epsilon=grad_e):
-        grad = np.zeros_like(params)
-        for i in range(len(params)):
-            params_eps = np.array(params)
-            params_eps[i] += epsilon
-            grad[i] = (func(params_eps) - func(params)) / epsilon
-        return grad    
     
     history_params = []
     history_energy = []
@@ -266,21 +258,32 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, grad_e, bounds, fi
             headline.append("gamma[{}]".format(p))
             headline.append("beta[{}]".format(p))
         writer.writerow(headline)
-        
-    #result = minimize(energy_function, initial_params, method="Nelder-Mead", bounds=bounds, callback=callback)#L-BFGS-B, jac=lambda params: numerical_gradient(energy_dummy, params)
-    #result = minimize(energy_function, initial_params, method="L-BFGS-B", bounds=bounds, jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
+            
+    # Perform the optimization
     result = minimize(
-                fun     = energy_function,
-                x0      = initial_params,
-                jac     = "3-point",
-                method  = 'L-BFGS-B',
-                options = {'gtol': 1e-10},
-                bounds  = [(0,None)]*len(initial_params),
-                tol     = 1e-12,
-                callback=callback
-                )
+        fun=energy_function,
+        x0=initial_params,
+        method='Powell',
+        jac='3-point',
+        bounds=[(0, None)] * len(initial_params),
+        options={'xtol': 1e-10, 'maxiter': 10000},
+        callback=callback
+    )
     
     print(result)
+    
     gamma, beta = np.split(result.x, 2)
-    #adam opt -> tensor flow
     return gamma, beta
+
+    #result = minimize(energy_function, initial_params, method="L-BFGS-B", bounds=bounds, jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
+    # result = minimize(
+    #             fun     = energy_function,
+    #             x0      = initial_params,
+    #             jac     = "3-point",
+    #             method  = 'L-BFGS-B',
+    #             options = {'gtol': 1e-10},
+    #             bounds  = [(0,None)]*len(initial_params),
+    #             tol     = 1e-12,
+    #             callback=callback
+    #             )
+    # Perform the optimization

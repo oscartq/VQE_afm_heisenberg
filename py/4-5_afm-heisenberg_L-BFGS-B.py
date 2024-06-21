@@ -1,6 +1,7 @@
 import os
 import shutil
 import datetime
+import time  # Import time module
 from functools import partial
 import tomllib
 import multiprocessing as mp
@@ -20,9 +21,9 @@ def main(): # Main function
 
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    #iteration = config[output_file_prefix]["iteration"]
+    # iteration = config[output_file_prefix]["iteration"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]
-    
+
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
         print(f"Directory {results_dir_path} created.")
@@ -38,11 +39,14 @@ def main(): # Main function
 
     pool = mp.Pool(4)
 
+    # Start time
+    start_time = time.time()
+
     # Run for p and l
     for p in p_list:
-        param = np.random.uniform(0,1)
-        initial_gamma = np.array([param for i in range(p)])
-        initial_beta = np.array([param for i in range(p)]) #TODO random numbers (0,1) (2*pi)
+        # param = np.random.uniform(0,1)
+        initial_gamma = np.array([0.6 for _ in range(p)])
+        initial_beta = np.array([0.6 for _ in range(p)])
 
         for length in length_list:
             qsim_option = {'t': int(length / 2), 'f': 1}
@@ -54,7 +58,7 @@ def main(): # Main function
                 f.write("p            ={}\n".format(p))
                 f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
                 f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
-                #f.write("iteration    ={}\n".format(iteration))
+                # f.write("iteration    ={}\n".format(iteration))
 
             function_args = AFMHeisenbergArgs(length, qsim_option)
 
@@ -62,10 +66,21 @@ def main(): # Main function
                 function=partial(get_expectation_afm_heisenberg, function_args=function_args),
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
-                grad_e = 1e-2,
-                bounds = [(0,1)] * (2 * p),
+                bounds=[(0, 1)] * (2 * p),
                 figure=True,
                 filepath=csvpath)
+
+    pool.close()
+    pool.join()
+
+    # End time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    # Write elapsed time to a file
+    elapsed_time_file = os.path.join(results_dir_path, '{}_elapsed_time_{}.txt'.format(output_file_prefix, ymdhms))
+    with open(elapsed_time_file, mode='w') as f:
+        f.write("Elapsed time: {:.2f} seconds".format(elapsed_time))
 
 if __name__ == '__main__':
     main()
