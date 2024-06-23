@@ -1,4 +1,7 @@
-cirq==1.3.0
-openfermion==1.6.1
+toml==0.10.2
 numpy==1.26.4   
+pandas==2.2.2
+matplotlib==3.8.4
+cirq==1.3.0
 qsimcirq==0.21.0
+openfermion==1.6.1

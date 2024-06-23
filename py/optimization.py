@@ -11,6 +11,7 @@ from scipy.optimize import minimize
 import cirq
 import openfermion
 import numpy as np
+import scipy 
 # import cupy as cp
 Pi=3.1415
 

@@ -102,6 +102,11 @@ class AnzatsAFMHeisenberg():
         self.gamma = gamma
         self.beta = beta
 
+    def circuit_to_latex_using_qcircuit(self):
+        return cirq.contrib.circuit_to_latex_using_qcircuit(
+            self.circuit, self.qubits
+        )   
+
 
 class AnzatsToricCode():
     def __init__(self, length, gamma, beta):
