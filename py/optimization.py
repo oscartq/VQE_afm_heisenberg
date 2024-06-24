@@ -260,30 +260,82 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
         writer.writerow(headline)
             
     # Perform the optimization
+    # result = minimize(
+    #     fun=energy_function,
+    #     x0=initial_params,
+    #     method='Powell',
+    #     jac='3-point',
+    #     bounds=[(0, None)] * len(initial_params),
+    #     options={'xtol': 1e-10, 'maxiter': 10000},
+    #     callback=callback
+    # )
+    
     result = minimize(
-        fun=energy_function,
-        x0=initial_params,
-        method='Powell',
-        jac='3-point',
-        bounds=[(0, None)] * len(initial_params),
-        options={'xtol': 1e-10, 'maxiter': 10000},
-        callback=callback
-    )
+                fun     = energy_function,
+                x0      = initial_params,
+                jac     = "3-point",
+                method  = 'L-BFGS-B',
+                options = {'gtol': 1e-10},
+                bounds  = [(0,None)]*len(initial_params),
+                tol     = 1e-12,
+                callback=callback
+                )
     
     print(result)
     
     gamma, beta = np.split(result.x, 2)
     return gamma, beta
 
-    #result = minimize(energy_function, initial_params, method="L-BFGS-B", bounds=bounds, jac=lambda params: numerical_gradient(energy_function, params), callback=callback)
-    # result = minimize(
-    #             fun     = energy_function,
-    #             x0      = initial_params,
-    #             jac     = "3-point",
-    #             method  = 'L-BFGS-B',
-    #             options = {'gtol': 1e-10},
-    #             bounds  = [(0,None)]*len(initial_params),
-    #             tol     = 1e-12,
-    #             callback=callback
-    #             )
-    # Perform the optimization
+# import torch
+# import torch.nn as nn
+# import torch.optim as optims
+
+# def optimize_by_adam(function, initial_gamma, initial_beta, iteration, bounds, figure=True, filepath=""):
+#     # Convert initial parameters to PyTorch tensors
+#     gamma = torch.tensor(initial_gamma, dtype=torch.float32, requires_grad=True)
+#     beta = torch.tensor(initial_beta, dtype=torch.float32, requires_grad=True)
+#     params = [gamma, beta]
+    
+#     # Initialize the Adam optimizer
+#     optimizer = torch.optim.Adam(params, lr=0.001)
+
+#     history_params = []
+#     history_energy = []
+
+#     if filepath:
+#         # Ensure the directory exists
+#         os.makedirs(os.path.dirname(filepath), exist_ok=True)
+#         # Write the header to the CSV file
+#         with open(filepath, mode='w', newline='') as f:
+#             writer = csv.writer(f)
+#             headline = ["iter", "energy"]
+#             for p in range(len(initial_gamma)):
+#                 headline.append(f"gamma[{p}]")
+#                 headline.append(f"beta[{p}]")
+#             writer.writerow(headline)
+
+#     # Define the optimization loop
+#     for iteration in range(iteration):
+#         optimizer.zero_grad()
+#         energy = function(gamma=gamma, beta=beta)
+#         energy.backward()
+#         optimizer.step()
+
+#         current_params = np.concatenate([gamma.detach().numpy(), beta.detach().numpy()])
+#         history_params.append(current_params)
+#         history_energy.append(energy.item())
+
+#         record = [iteration + 1, energy.item()] + list(gamma.detach().numpy()) + list(beta.detach().numpy())
+        
+#         if filepath:
+#             # Open the file in append mode and write the record
+#             with open(filepath, mode='a', newline='') as f:
+#                 writer = csv.writer(f)
+#                 writer.writerow(record)
+#                 if figure:
+#                     print(record)
+#                 f.flush()
+
+#     # Final optimized values
+#     gamma, beta = gamma.detach().numpy(), beta.detach().numpy()
+#     return gamma, beta

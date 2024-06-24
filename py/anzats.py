@@ -19,7 +19,7 @@ class Anzats():
             circuit.append(cirq.H(qubits[i]))
 
         # add gamma circuit
-        for index in range(gamma.size):
+        for index in range(len(gamma)):
             # add gates on 2n and 2n+1
             for i in range(1, length, 2):
                 circuit.append(
@@ -71,7 +71,7 @@ class AnzatsAFMHeisenberg():
             circuit.append(cirq.CNOT(qubits[int(2*i)], qubits[int(2*i+1)]))
 
         # add gamma circuit
-        for index in range(gamma.size):
+        for index in range(len(gamma)):
             # add gates on 2n and 2n+1
             for i in range(1, length-1, 2):
                 circuit.append(
@@ -115,7 +115,7 @@ class AnzatsToricCode():
                 circuit.append(cirq.H(qubits[i][j]))
 
         # add gamma circuit
-        for index in range(gamma.size):
+        for index in range(len(gamma)):
             # add gates on 2n and 2n+1
             for i in range(length):
                 for j in range(length):
@@ -161,7 +161,7 @@ class AnzatsBCSHubbard():
         circuit = cirq.Circuit(
             of.circuits.prepare_gaussian_state(qubits, quad_ham))
 
-        for index in range(gamma.size):
+        for index in range(len(gamma)):
             # H2 (gamma) hubbard
             # circuit tunneling
             for term in _get_one_body_term_on_hubbard(hopping_matrix, n_sites):
