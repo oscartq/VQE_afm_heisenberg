@@ -76,7 +76,7 @@ def main(): #Main function
                 delta_gamma=delta_gamma,
                 delta_beta=delta_beta,
                 iteration=iteration,
-                tol=1e-8,
+                tol=1e-10,
                 figure=True,
                 filepath=csvpath,
                 pool=pool)
