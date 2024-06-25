@@ -177,7 +177,7 @@ def partial_derivative_beta(f, gamma, beta, i, h=1e-5, variable='gamma'):
     return derivative
 
 #L-BFGS-B for optimization, scipy.optimize
-def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, figure=True, filepath="", pool=mp.Pool(2)):
+def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_beta, alpha, delta_gamma, delta_beta, iteration, tol, figure=True, filepath="", pool=mp.Pool(2)):
     gamma, beta = initial_gamma.copy(), initial_beta.copy()
     min_iterations = max(1, int(0.1 * iteration)) if iteration != -1 else 1  # Ensure at least 10% of the total iterations, minimum of 1
 
@@ -193,8 +193,11 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
         iter = 0
         while True:
             # Store the previous values of gamma and beta
+            if iter == 0:
+                energy = 0
             prev_gamma = gamma.copy()
             prev_beta = beta.copy()
+            prev_energy = energy
             
             grad_gamma, grad_beta = gradient_parallel(pool, function, gamma, beta, delta_gamma)
             # print(grad_beta, grad_gamma)
@@ -202,17 +205,22 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
             gamma -= alpha * grad_gamma
             beta -= alpha * grad_beta
             
-            # Calculate the relative changes
-            gamma_change = max(abs((gamma - prev_gamma) / (prev_gamma + 1e-10)))  # Adding a small constant to avoid division by zero
-            beta_change = max(abs((beta - prev_beta) / (prev_beta + 1e-10)))
-            
-            # Check if the changes are below the threshold and if we have passed the minimum iteration count
-            if iter >= min_iterations and gamma_change < 0.0001 and beta_change < 0.0001:
-                print(f"Converged at iteration {iter}")
-                break
-
             energy = function(gamma=gamma, beta=beta)
 
+            # Calculate the relative changes
+            gamma_change = max(abs((gamma - prev_gamma) / (prev_gamma + 1e-10)))  # Adding a small constant to avoid division by zero
+            beta_change = max(abs((beta - prev_beta) / (prev_beta + 1e-10)))        
+            energy_change = abs((energy - prev_energy) / (prev_energy + 1e-10))
+            
+            # Check if the changes are below the threshold and if we have passed the minimum iteration count
+            
+            # if iter >= min_iterations and gamma_change < tol and beta_change < tol:
+            #     print(f"Converged at iteration {iter}")
+            #     break
+            if iter >= min_iterations and energy_change < tol:
+                print(f"Converged at iteration {iter}")
+                break
+            
             record = [iter, energy] + [val for pair in zip(gamma, beta) for val in pair]
             writer.writerow(record)
             if figure:
@@ -260,26 +268,26 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
         writer.writerow(headline)
             
     # Perform the optimization
-    # result = minimize(
-    #     fun=energy_function,
-    #     x0=initial_params,
-    #     method='Powell',
-    #     jac='3-point',
-    #     bounds=[(0, None)] * len(initial_params),
-    #     options={'xtol': 1e-10, 'maxiter': 10000},
-    #     callback=callback
-    # )
-    
     result = minimize(
-                fun     = energy_function,
-                x0      = initial_params,
-                jac     = "3-point",
-                method  = 'L-BFGS-B',
-                options = {'gtol': 1e-10},
-                bounds  = [(0,None)]*len(initial_params),
-                tol     = 1e-12,
-                callback=callback
-                )
+        fun=energy_function,
+        x0=initial_params,
+        method='L-BFGS-B',
+        jac='3-point',
+        bounds=[(0, None)] * len(initial_params),
+        options={'ftol':1e-6},
+        callback=callback
+    )
+    
+    # result = minimize(
+    #             fun     = energy_function,
+    #             x0      = initial_params,
+    #             jac     = "3-point",
+    #             method  = 'L-BFGS-B',
+    #             options = {'gtol': 1e-10},
+    #             bounds  = [(0,None)]*len(initial_params),
+    #             tol     = 1e-12,
+    #             callback=callback
+    #             )
     
     print(result)
     

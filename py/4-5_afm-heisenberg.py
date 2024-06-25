@@ -1,4 +1,5 @@
 import os
+import shutil
 import datetime
 import time
 from functools import partial
@@ -25,8 +26,14 @@ def main(): #Main function
     delta_beta = config[output_file_prefix]["delta_beta"]
     iteration = config[output_file_prefix]["iteration"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]
+    
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
+        print(f"Directory {results_dir_path} created.")
+    if os.path.exists(results_dir_path):
+        shutil.rmtree(results_dir_path)
+        os.mkdir(results_dir_path)
+        print(f"Directory {results_dir_path} cleared.")
 
     t_delta = datetime.timedelta(hours=9)
     JST = datetime.timezone(t_delta, 'JST')
@@ -69,6 +76,7 @@ def main(): #Main function
                 delta_gamma=delta_gamma,
                 delta_beta=delta_beta,
                 iteration=iteration,
+                tol=1e-8,
                 figure=True,
                 filepath=csvpath,
                 pool=pool)
