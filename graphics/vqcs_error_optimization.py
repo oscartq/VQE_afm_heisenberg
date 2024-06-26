@@ -71,8 +71,8 @@ for number_l, dir_data in plot_data.items():
     
     plt.tick_params(axis='both', labelsize=16)  # Font size of the tick labels on the x-axis and y-axis
     plt.xlabel('$p$', fontsize=20)  # Font size of the x-axis label
-    plt.ylabel('$Energy error$', fontsize=20)  # Font size of the y-axis label
-    plt.title(f"Relative energy vs. p-number for L = {number_l}\n{csv_prefix}", fontsize=16)  # Font size of the title
+    plt.ylabel('$E_{error}$', fontsize=20)  # Font size of the y-axis label
+    plt.title(f"Relative energy error vs. p-number for L = {number_l}\n{csv_prefix}", fontsize=16)  # Font size of the title
     plt.legend(fontsize=20)  # Font size of the legend
     plt.grid(True)
     
