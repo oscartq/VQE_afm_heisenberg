@@ -40,6 +40,7 @@ linestyles = ['-', '--', '-.', ':', '-', '--', '-.', ':', '-', '--']
 plot_data = {}
 
 for dir in directory_list:
+    print(f"Now working on {dir}")
     dir_name = os.path.basename(dir)
     for number_l in number_l_list:
         if number_l not in plot_data:

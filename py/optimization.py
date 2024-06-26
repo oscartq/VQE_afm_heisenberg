@@ -268,16 +268,24 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
         writer.writerow(headline)
             
     # Perform the optimization
-    result = minimize(
-        fun=energy_function,
-        x0=initial_params,
+    result = minimize( 
+        fun=energy_function, 
+        x0=initial_params, 
+        jac="3-point",
         method='L-BFGS-B',
-        jac='3-point',
-        bounds=[(0, None)] * len(initial_params),
-        options={'ftol':1e-6},
-        callback=callback
-    )
-    
+        options= {'gtol': 1e-10},
+        bounds=[(0,None)]*len(initial_params),
+        tol=1e-12,
+        callback=callback)
+    # result = minimize(
+    #     fun=energy_function,
+    #     x0=initial_params,
+    #     method='L-BFGS-B',
+    #     jac='3-point',
+    #     bounds=[(0, None)] * len(initial_params),
+    #     options={'ftol':1e-6},
+    #     callback=callback
+    # )
     # result = minimize(
     #             fun     = energy_function,
     #             x0      = initial_params,
