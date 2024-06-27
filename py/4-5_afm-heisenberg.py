@@ -5,7 +5,7 @@ import time
 from functools import partial
 import tomllib
 import multiprocessing as mp
-import cirq
+import cirq #state vector
 import openfermion
 import numpy as np
 from anzats import Anzats  # Ensure these imports are correct and available
@@ -47,7 +47,7 @@ def main(): #Main function
 
     # run for p and l
     for p in p_list:
-        initial_gamma = np.array([0.6 for _ in range(p)])
+        initial_gamma = np.array([0.6 for _ in range(p)]) #Open boundary condition -> periodic boundary condition
         initial_beta = np.array([0.6 for _ in range(p)])
         # initial_gamma = np.array([0.44100484997034073,0.5607438758015633,0.5727711990475655,0.5745645072311163,0.5770069658756256,0.5438836682587862,0.3574042972177267])
         # initial_beta = np.array([0.518215598538518,0.5762445759028196,0.6036094501614571,0.60199218057096,0.5795486941933632,0.5976213440299034,0.5236566364765167])

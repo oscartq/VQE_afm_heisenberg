@@ -119,6 +119,36 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
         value += np.dot(vector2.conj(), vector)
     return np.real(value)
 
+def get_expectation_afm_heisenberg_new_symmetry(function_args, gamma, beta):
+    # open boundary
+    anzats = AnzatsAFMHeisenberg(function_args.length, gamma, beta)
+    circuit = anzats.circuit
+    qubits = anzats.qubits
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    vector = simulator.simulate(circuit).state_vector()
+
+    value = 0 + 0j
+    for i in range(function_args.length-1):
+        circuitX = anzats.circuit.copy()
+        circuitY = anzats.circuit.copy()
+        circuitZ = anzats.circuit.copy()
+
+        circuitX.append(cirq.X(qubits[i]))
+        circuitX.append(cirq.X(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitX).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitY.append(cirq.Y(qubits[i]))
+        circuitY.append(cirq.Y(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitY).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitZ.append(cirq.Z(qubits[i]))
+        circuitZ.append(cirq.Z(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitZ).state_vector()
+        value += np.dot(vector2.conj(), vector)
+    return np.real(value)
+
 class ToricCodeArgs():
     def __init__(self, length, qsim_option):
         self.length = length
