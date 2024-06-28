@@ -2,7 +2,7 @@ import cirq
 import openfermion as of
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsToricCode, AnzatsBCSHubbard
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, AnzatsToricCode, AnzatsBCSHubbard
 import qsimcirq
 # import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
@@ -115,6 +115,36 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
 
         circuitZ.append(cirq.Z(qubits[i]))
         circuitZ.append(cirq.Z(qubits[(i+1)]))
+        vector2 = simulator.simulate(circuitZ).state_vector()
+        value += np.dot(vector2.conj(), vector)
+    return np.real(value)
+
+def get_expectation_afm_heisenberg_periodic(function_args, gamma, beta):
+    # periodic
+    anzats = AnzatsAFMHeisenberg_periodic(function_args.length, gamma, beta)
+    circuit = anzats.circuit
+    qubits = anzats.qubits
+    simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    vector = simulator.simulate(circuit).state_vector()
+
+    value = 0 + 0j
+    for i in range(function_args.length-1):
+        circuitX = anzats.circuit.copy()
+        circuitY = anzats.circuit.copy()
+        circuitZ = anzats.circuit.copy()
+
+        circuitX.append(cirq.X(qubits[i%length]))
+        circuitX.append(cirq.X(qubits[(i+1)%length]))
+        vector2 = simulator.simulate(circuitX).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitY.append(cirq.Y(qubits[i%length]))
+        circuitY.append(cirq.Y(qubits[(i+1)%length]))
+        vector2 = simulator.simulate(circuitY).state_vector()
+        value += np.dot(vector2.conj(), vector)
+
+        circuitZ.append(cirq.Z(qubits[i%length]))
+        circuitZ.append(cirq.Z(qubits[(i+1)%length]))
         vector2 = simulator.simulate(circuitZ).state_vector()
         value += np.dot(vector2.conj(), vector)
     return np.real(value)
