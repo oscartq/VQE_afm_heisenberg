@@ -158,6 +158,57 @@ class AnzatsAFMHeisenberg_periodic():
             self.circuit, self.qubits
         )   
 
+class AnzatsAFMHeisenberg_new_symmetry():
+    def __init__(self, length, gamma, beta):
+
+        # initialize circuit
+        circuit = cirq.Circuit()
+        qubits = cirq.LineQubit.range(length)
+
+
+        for i in range(int(length/2)):
+            circuit.append(cirq.H(qubits[int(2*i)]))
+            circuit.append(cirq.Y(qubits[int(2*i)]))
+            circuit.append(cirq.X(qubits[int(2*i+1)]))
+            circuit.append(cirq.CNOT(qubits[int(2*i)], qubits[int(2*i+2)])) #Correlation between qubits 2*i and 2*i+2 instead of 2*i+1
+
+        # add gamma circuit
+        for index in range(len(gamma)):
+            # add gates on 2n and 2n+1
+            for i in range(1, length-1, 2):
+                circuit.append(
+                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+            # add gates on 2n-1 and 2n
+
+            # add beta circuit
+            for i in range(0, length-1, 2):
+                circuit.append(
+                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+
+        self.circuit = circuit
+        self.qubits = qubits
+        self.gamma = gamma
+        self.beta = beta
+
+    def circuit_to_latex_using_qcircuit(self):
+        return cirq.contrib.circuit_to_latex_using_qcircuit(
+            self.circuit, self.qubits
+        )   
+
 class AnzatsToricCode():
     def __init__(self, length, gamma, beta):
 
