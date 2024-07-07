@@ -9,7 +9,7 @@ import cirq #state vector
 import openfermion
 import numpy as np
 from anzats import Anzats  # Ensure these imports are correct and available
-from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
+from expectation import get_expectation_afm_heisenberg_periodic, AFMHeisenbergArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent, optimize_by_lbfgsb
 
 def main(): #Main function
@@ -69,7 +69,7 @@ def main(): #Main function
             function_args = AFMHeisenbergArgs(length, qsim_option)
 
             gamma, beta = optimize_by_gradient_descent_multiprocess(
-                function=partial(get_expectation_afm_heisenberg, function_args=function_args),
+                function=partial(get_expectation_afm_heisenberg_periodic, function_args=function_args),
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
                 alpha=alpha,

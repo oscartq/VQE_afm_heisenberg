@@ -2,7 +2,7 @@ import cirq
 import openfermion as of
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, AnzatsToricCode, AnzatsBCSHubbard
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, AnzatsAFMHeisenberg_new_symmetry, AnzatsToricCode, AnzatsBCSHubbard
 import qsimcirq
 # import cupy as cp
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
@@ -124,6 +124,7 @@ def get_expectation_afm_heisenberg_periodic(function_args, gamma, beta):
     anzats = AnzatsAFMHeisenberg_periodic(function_args.length, gamma, beta)
     circuit = anzats.circuit
     qubits = anzats.qubits
+    length = function_args.length
     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
     vector = simulator.simulate(circuit).state_vector()
 
@@ -151,7 +152,7 @@ def get_expectation_afm_heisenberg_periodic(function_args, gamma, beta):
 
 def get_expectation_afm_heisenberg_new_symmetry(function_args, gamma, beta):
     # open boundary
-    anzats = AnzatsAFMHeisenberg(function_args.length, gamma, beta)
+    anzats = AnzatsAFMHeisenberg_new_symmetry(function_args.length, gamma, beta)
     circuit = anzats.circuit
     qubits = anzats.qubits
     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
