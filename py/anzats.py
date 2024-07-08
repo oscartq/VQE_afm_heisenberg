@@ -173,19 +173,19 @@ class AnzatsAFMHeisenberg_new_symmetry():
 
         # add gamma circuit
         for index in range(len(gamma)):
-            # add gates on n and n+1
+            # add gates on n+1 and n+2
             for i in range(0, int(length/2), 1):
                 circuit.append(
-                    cirq.XX(qubits[i], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
+                    cirq.XX(qubits[i+1], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
                     )
                 circuit.append(
-                    cirq.YY(qubits[i], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
+                    cirq.YY(qubits[i+1], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
                     )
                 circuit.append(
-                    cirq.ZZ(qubits[i], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
+                    cirq.ZZ(qubits[i+1], qubits[(i+2)]) ** (-gamma[index]*2/Pi)
                     )
-            # add gates on 2n-1 and 2n
-
+                
+            # add gates on n and n+2
             # add beta circuit
             for i in range(0, int(length/2), 1):
                 circuit.append(
