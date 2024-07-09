@@ -3,11 +3,13 @@ import openfermion as of
 import numpy as np
 import datetime
 from inner_functions import _get_one_body_term_on_hubbard, _get_two_body_term_on_hubbard, _exponentiate_quad_ham
+import matplotlib.pyplot as plt
 # from anzats import Anzats
 # from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
 # from optimization import get_gradient, optimize_by_gradient_descent
 
-Pi=3.1415
+from numpy import pi as Pi
+
 class Anzats():
     def __init__(self, length, gamma, beta):
 
@@ -83,7 +85,6 @@ class AnzatsAFMHeisenberg():
                 circuit.append(
                     cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
                     )
-            # add gates on 2n-1 and 2n
 
             # add beta circuit
             for i in range(0, length-1, 2):
@@ -169,57 +170,112 @@ class AnzatsAFMHeisenberg_line_2d():
             self.circuit, self.qubits
         )   
         
-class AnzatsAFMHeisenberg_2d():
+class AnzatsAFMHeisenberg_2d:
     def __init__(self, length, gamma, beta):
+        rows = 2
+        cols = int(length / 2)
+        if rows * cols % 2 != 0:
+            raise ValueError("The number of qubits (rows * cols) must be even.")
 
-        # initialize circuit
+        # Initialize circuit
         circuit = cirq.Circuit()
-        qubits = cirq.LineQubit.range(length)
+        qubits = [cirq.GridQubit(i, j) for i in range(rows) for j in range(cols)]
 
+        # Apply initial gates and CNOT gates for correlations
+        for i in range(rows):
+            for j in range(cols):
+                index = i * cols + j
+                if index % 2 == 0:  # Even qubits
+                    circuit.append(cirq.H(qubits[index]))
+                    circuit.append(cirq.Y(qubits[index]))
+                else:  # Odd qubits
+                    circuit.append(cirq.X(qubits[index]))
 
-        for i in range(int(length/2)):
-            circuit.append(cirq.H(qubits[int(2*i)]))
-            circuit.append(cirq.Y(qubits[int(2*i)]))
-            circuit.append(cirq.X(qubits[int(2*i+1)]))
-            circuit.append(cirq.CNOT(qubits[int(2*i)], qubits[int(2*i+1)]))
+                # Apply CNOT gates for correlations with neighbors
+                if j + 1 < cols:  # Right neighbor
+                    circuit.append(cirq.CNOT(qubits[index], qubits[index + 1]))
+                if i + 1 < rows:  # Down neighbor
+                    circuit.append(cirq.CNOT(qubits[index], qubits[index + cols]))
+                if j - 1 >= 0:  # Left neighbor
+                    circuit.append(cirq.CNOT(qubits[index], qubits[index - 1]))
+                if i - 1 >= 0:  # Up neighbor
+                    circuit.append(cirq.CNOT(qubits[index], qubits[index - cols]))
 
-        # add gamma circuit
+        # Add gamma circuit
         for index in range(len(gamma)):
-            # add gates on 2n and 2n+1
-            for i in range(1, length-1, 2):
-                circuit.append(
-                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+            for i in range(rows):
+                for j in range(cols - 1):
+                    # Apply XX, YY, ZZ gates to horizontal neighbors
+                    circuit.append(
+                        cirq.XX(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-gamma[index] * 2 / Pi)
                     )
-                circuit.append(
-                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    circuit.append(
+                        cirq.YY(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-gamma[index] * 2 / Pi)
                     )
-                circuit.append(
-                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    circuit.append(
+                        cirq.ZZ(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-gamma[index] * 2 / Pi)
                     )
-            # add gates on 2n-1 and 2n
 
-            # add beta circuit
-            for i in range(0, length-1, 2):
-                circuit.append(
-                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+            for j in range(cols):
+                for i in range(rows - 1):
+                    # Apply XX, YY, ZZ gates to vertical neighbors
+                    circuit.append(
+                        cirq.XX(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-gamma[index] * 2 / Pi)
                     )
-                circuit.append(
-                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    circuit.append(
+                        cirq.YY(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-gamma[index] * 2 / Pi)
                     )
-                circuit.append(
-                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    circuit.append(
+                        cirq.ZZ(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-gamma[index] * 2 / Pi)
+                    )
+
+            # Add beta circuit
+            for i in range(rows):
+                for j in range(cols - 1):
+                    # Apply XX, YY, ZZ gates to horizontal neighbors
+                    circuit.append(
+                        cirq.XX(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-beta[index] * 2 / Pi)
+                    )
+                    circuit.append(
+                        cirq.YY(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-beta[index] * 2 / Pi)
+                    )
+                    circuit.append(
+                        cirq.ZZ(qubits[i * cols + j], qubits[i * cols + j + 1]) ** (-beta[index] * 2 / Pi)
+                    )
+
+            for j in range(cols):
+                for i in range(rows - 1):
+                    # Apply XX, YY, ZZ gates to vertical neighbors
+                    circuit.append(
+                        cirq.XX(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-beta[index] * 2 / Pi)
+                    )
+                    circuit.append(
+                        cirq.YY(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-beta[index] * 2 / Pi)
+                    )
+                    circuit.append(
+                        cirq.ZZ(qubits[i * cols + j], qubits[(i + 1) * cols + j]) ** (-beta[index] * 2 / Pi)
                     )
 
         self.circuit = circuit
         self.qubits = qubits
         self.gamma = gamma
         self.beta = beta
+        
+        # Function to visualize the circuit using matplotlib
+        # def visualize_circuit(circuit):
+        #     diagram = cirq.CircuitDiagramInfo(circuit)
+        #     fig, ax = plt.subplots(figsize=(12, 6))
+        #     cirq.circuits.circuit_diagram.draw_circuit_diagram(ax, diagram)
+        #     plt.show()
 
+        # # Visualize the circuit
+        # visualize_circuit(ansatz.circuit) 
+           
     def circuit_to_latex_using_qcircuit(self):
         return cirq.contrib.circuit_to_latex_using_qcircuit(
             self.circuit, self.qubits
-        )   
-        
+        )
+    
 class AnzatsAFMHeisenberg_periodic():
     def __init__(self, length, gamma, beta):
 
@@ -366,10 +422,10 @@ class AnzatsAFMHeisenberg_new_symmetry():
 #         self.gamma = gamma
 #         self.beta = beta
 
-    def circuit_to_latex_using_qcircuit(self):
-        return cirq.contrib.circuit_to_latex_using_qcircuit(
-            self.circuit, self.qubits
-        )   
+#     def circuit_to_latex_using_qcircuit(self):
+#         return cirq.contrib.circuit_to_latex_using_qcircuit(
+#             self.circuit, self.qubits
+#         )   
 
 class AnzatsToricCode():
     def __init__(self, length, gamma, beta):
