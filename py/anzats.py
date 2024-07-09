@@ -107,6 +107,68 @@ class AnzatsAFMHeisenberg():
             self.circuit, self.qubits
         )   
 
+class AnzatsAFMHeisenberg_2d():
+    def __init__(self, length, gamma, beta):
+
+        # initialize circuit
+        circuit = cirq.Circuit()
+        qubits = cirq.LineQubit.range(length)
+
+        L=int(length/2)
+        for i in range(int(length/4)):
+            #First row
+            circuit.append(cirq.H(qubits[int(2*i)]))
+            circuit.append(cirq.Y(qubits[int(2*i)]))
+            circuit.append(cirq.X(qubits[int(2*i+1)]))
+            
+            #Second row
+            circuit.append(cirq.H(qubits[int(2*i)+L]))
+            circuit.append(cirq.Y(qubits[int(2*i)+L]))
+            circuit.append(cirq.X(qubits[int(2*i+1)+L]))
+            
+            #Correlation                                                        #i=0 , i=1
+            circuit.append(cirq.CNOT(qubits[int(2*i)], qubits[int(2*i+1)]))     #0-1 , 2-3
+            circuit.append(cirq.CNOT(qubits[int(2*i)], qubits[int(2*i)+L]))     #0-4 , 2-6
+            circuit.append(cirq.CNOT(qubits[int(2*i)+L], qubits[int(2*i+1)+L])) #5-4 , 6-7
+            circuit.append(cirq.CNOT(qubits[int(2*i+1)], qubits[int(2*i+1)+L])) #1-5 , 3-7
+
+        # add gamma circuit
+        for index in range(len(gamma)):
+            # add gates on 2n and 2n+1
+            for i in range(1, length-1, 2):
+                circuit.append(
+                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-gamma[index]*2/Pi)
+                    )
+            # add gates on 2n-1 and 2n
+
+            # add beta circuit
+            for i in range(0, length-1, 2):
+                circuit.append(
+                    cirq.XX(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.YY(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+                circuit.append(
+                    cirq.ZZ(qubits[i], qubits[(i+1)]) ** (-beta[index]*2/Pi)
+                    )
+
+        self.circuit = circuit
+        self.qubits = qubits
+        self.gamma = gamma
+        self.beta = beta
+
+    def circuit_to_latex_using_qcircuit(self):
+        return cirq.contrib.circuit_to_latex_using_qcircuit(
+            self.circuit, self.qubits
+        )   
+
 class AnzatsAFMHeisenberg_periodic():
     def __init__(self, length, gamma, beta):
 
