@@ -2,7 +2,7 @@ import cirq
 import openfermion as of
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, AnzatsAFMHeisenberg_2d, AnzatsAFMHeisenbergLattice
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, AnzatsAFMHeisenbergLattice
 import qsimcirq
 
 class AFMHeisenbergLatticeArgs():
@@ -91,7 +91,6 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
 
     # Loop through each pair of neighboring qubits
     for i in range(function_args.length - 1):
-        print(f'Iteration {i}')
         # Create copies of the original circuit for each Pauli operator (X, Y, Z)
         circuitX = anzats.circuit.copy()
         circuitY = anzats.circuit.copy()
@@ -102,21 +101,18 @@ def get_expectation_afm_heisenberg(function_args, gamma, beta):
         circuitX.append(cirq.X(qubits[(i + 1)]))
         vector2 = simulator.simulate(circuitX).state_vector()
         value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-        print(f'Applying Pauli-X operators to {qubits[i]} and {qubits[(i + 1)]}')
 
         # Apply Pauli-Y operators to the i-th and (i+1)-th qubits and simulate the circuit
         circuitY.append(cirq.Y(qubits[i]))
         circuitY.append(cirq.Y(qubits[(i + 1)]))
         vector2 = simulator.simulate(circuitY).state_vector()
         value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-        print(f'Applying Pauli-Y operators to {qubits[i]} and {qubits[(i + 1)]}')
         
         # Apply Pauli-Z operators to the i-th and (i+1)-th qubits and simulate the circuit
         circuitZ.append(cirq.Z(qubits[i]))
         circuitZ.append(cirq.Z(qubits[(i + 1)]))
         vector2 = simulator.simulate(circuitZ).state_vector()
         value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-        print(f'Applying Pauli-Z operators to {qubits[i]} and {qubits[(i + 1)]}')
         
     # Return the real part of the expectation value
     return np.real(value)
@@ -187,21 +183,18 @@ def get_expectation_afm_heisenberg_new_symmetry(function_args, gamma, beta):
             circuitX.append(cirq.X(qubits[i * cols + j + 1]))
             vector2 = simulator.simulate(circuitX).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-X operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
             # Apply Pauli-Y operators to the horizontal neighbors and simulate the circuit
             circuitY.append(cirq.Y(qubits[i * cols + j]))
             circuitY.append(cirq.Y(qubits[i * cols + j + 1]))
             vector2 = simulator.simulate(circuitY).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-Y operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
             # Apply Pauli-Z operators to the horizontal neighbors and simulate the circuit
             circuitZ.append(cirq.Z(qubits[i * cols + j]))
             circuitZ.append(cirq.Z(qubits[i * cols + j + 1]))
             vector2 = simulator.simulate(circuitZ).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-Z operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
     for i in range(rows - 1):
         for j in range(cols):
@@ -217,21 +210,18 @@ def get_expectation_afm_heisenberg_new_symmetry(function_args, gamma, beta):
             circuitX.append(cirq.X(qubits[(i + 1) * cols + j]))
             vector2 = simulator.simulate(circuitX).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-X operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
             # Apply Pauli-Y operators to the vertical neighbors and simulate the circuit
             circuitY.append(cirq.Y(qubits[i * cols + j]))
             circuitY.append(cirq.Y(qubits[(i + 1) * cols + j]))
             vector2 = simulator.simulate(circuitY).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-Y operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
             # Apply Pauli-Z operators to the vertical neighbors and simulate the circuit
             circuitZ.append(cirq.Z(qubits[i * cols + j]))
             circuitZ.append(cirq.Z(qubits[(i + 1) * cols + j]))
             vector2 = simulator.simulate(circuitZ).state_vector()
             value += np.dot(vector2.conj(), vector)  # Add the overlap to the expectation value
-            print(f'Applying Pauli-Z operators to {qubits[i * cols + j]} and {qubits[i * cols + j + 1]}')
             
     # Return the real part of the expectation value
     return np.real(value)
