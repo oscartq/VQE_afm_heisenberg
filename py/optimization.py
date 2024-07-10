@@ -12,12 +12,10 @@ import cirq
 import openfermion
 import numpy as np
 import scipy 
-# import cupy as cp
+
 Pi=3.1415
 
 from anzats import Anzats
-# from expectation import get_expectation_ZiZj, get_expectation_ghz_l4, get_expectation_ghz_l8
-# from optimization import get_gradient, optimize_by_gradient_descent
 from multiprocessing import Process, Pipe, Pool
 from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 
@@ -303,57 +301,3 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
     
     gamma, beta = np.split(result.x, 2)
     return gamma, beta
-
-# import torch
-# import torch.nn as nn
-# import torch.optim as optims
-
-# def optimize_by_adam(function, initial_gamma, initial_beta, iteration, bounds, figure=True, filepath=""):
-#     # Convert initial parameters to PyTorch tensors
-#     gamma = torch.tensor(initial_gamma, dtype=torch.float32, requires_grad=True)
-#     beta = torch.tensor(initial_beta, dtype=torch.float32, requires_grad=True)
-#     params = [gamma, beta]
-    
-#     # Initialize the Adam optimizer
-#     optimizer = torch.optim.Adam(params, lr=0.001)
-
-#     history_params = []
-#     history_energy = []
-
-#     if filepath:
-#         # Ensure the directory exists
-#         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-#         # Write the header to the CSV file
-#         with open(filepath, mode='w', newline='') as f:
-#             writer = csv.writer(f)
-#             headline = ["iter", "energy"]
-#             for p in range(len(initial_gamma)):
-#                 headline.append(f"gamma[{p}]")
-#                 headline.append(f"beta[{p}]")
-#             writer.writerow(headline)
-
-#     # Define the optimization loop
-#     for iteration in range(iteration):
-#         optimizer.zero_grad()
-#         energy = function(gamma=gamma, beta=beta)
-#         energy.backward()
-#         optimizer.step()
-
-#         current_params = np.concatenate([gamma.detach().numpy(), beta.detach().numpy()])
-#         history_params.append(current_params)
-#         history_energy.append(energy.item())
-
-#         record = [iteration + 1, energy.item()] + list(gamma.detach().numpy()) + list(beta.detach().numpy())
-        
-#         if filepath:
-#             # Open the file in append mode and write the record
-#             with open(filepath, mode='a', newline='') as f:
-#                 writer = csv.writer(f)
-#                 writer.writerow(record)
-#                 if figure:
-#                     print(record)
-#                 f.flush()
-
-#     # Final optimized values
-#     gamma, beta = gamma.detach().numpy(), beta.detach().numpy()
-#     return gamma, beta
