@@ -22,11 +22,13 @@ def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta):
     rows = function_args.rows
     cols  = function_args.cols
     value = 0 + 0j
+    #print('Start')
     for i in range(rows):
         for j in range(cols):
-            current_index = j*rows + i
+            current_index = i * cols + j
 
-            right_neighbor = j * rows + (i + 1) % rows
+            right_neighbor = i * cols + (j + 1) % cols
+            #print(f'Adding gates to qubits {current_index} and {right_neighbor} (right)...')
             circuitX = anzats.circuit.copy()
             circuitY = anzats.circuit.copy()
             circuitZ = anzats.circuit.copy()
@@ -47,7 +49,8 @@ def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta):
             value += np.dot(vector2.conj(), vector)
 
 
-            down_neighbor = ((j + 1) % cols) * rows + i 
+            down_neighbor = ((i + 1) % rows) * cols + j
+            #print(f'Adding gates to qubits {current_index} and {down_neighbor} (down)...')
             circuitX = anzats.circuit.copy()
             circuitY = anzats.circuit.copy()
             circuitZ = anzats.circuit.copy()
@@ -66,6 +69,7 @@ def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta):
             circuitZ.append(cirq.Z(qubits[down_neighbor]))
             vector2 = simulator.simulate(circuitZ).state_vector()
             value += np.dot(vector2.conj(), vector)
+    #print('End')
     return np.real(value)
 
 class AFMHeisenbergArgs():
