@@ -6,71 +6,160 @@ from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenberg_periodic, An
 import qsimcirq
 
 class AFMHeisenbergLatticeArgs():
-    def __init__(self, rows, cols, qsim_option):
-        self.rows = rows
-        self.cols  = cols
+    def __init__(self, length, width, qsim_option):
+        self.length = length
+        self.width  = width
         self.qsim_option = qsim_option
 
+# class AFMHeisenbergLatticeArgs():
+#     def __init__(self, rows, cols, qsim_option):
+#         self.rows = rows
+#         self.cols  = cols
+#         self.qsim_option = qsim_option
+
 def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta):
-    # periodic boundary
-    anzats = AnzatsAFMHeisenbergLattice(function_args.rows, function_args.cols, gamma, beta)
+    # Create an instance of the AnzatsAFMHeisenbergLattice class
+    # with the specified length, width, gamma, and beta parameters
+    anzats = AnzatsAFMHeisenbergLattice(function_args.length, function_args.width, gamma, beta)
+    
+    # Extract the circuit and qubits from the anzats object
     circuit = anzats.circuit
     qubits = anzats.qubits
+    
+    # Initialize the simulator with the provided options
     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+    
+    # Simulate the circuit and get the state vector
     vector = simulator.simulate(circuit).state_vector()
 
-    rows = function_args.rows
-    cols  = function_args.cols
-    value = 0 + 0j
-    #print('Start')
-    for i in range(rows):
-        for j in range(cols):
-            current_index = i * cols + j
+    # Extract length and width from function_args
+    length = function_args.length
+    width  = function_args.width
+    edge   = 0 
+    value  = 0 + 0j
 
-            right_neighbor = i * cols + (j + 1) % cols
-            #print(f'Adding gates to qubits {current_index} and {right_neighbor} (right)...')
+    # Calculate the expectation value for row interactions
+    for i in range(length-edge):
+        for j in range(width):
+            current_index = j * length + i
+            right_neighbor = j * length + (i + 1) % length
+
+            # Create copies of the circuit for X, Y, Z operations
             circuitX = anzats.circuit.copy()
             circuitY = anzats.circuit.copy()
             circuitZ = anzats.circuit.copy()
 
+            # Append X operations and simulate
             circuitX.append(cirq.X(qubits[current_index]))
             circuitX.append(cirq.X(qubits[right_neighbor]))
             vector2 = simulator.simulate(circuitX).state_vector()
             value += np.dot(vector2.conj(), vector)
 
+            # Append Y operations and simulate
             circuitY.append(cirq.Y(qubits[current_index]))
             circuitY.append(cirq.Y(qubits[right_neighbor]))
             vector2 = simulator.simulate(circuitY).state_vector()
             value += np.dot(vector2.conj(), vector)
 
+            # Append Z operations and simulate
             circuitZ.append(cirq.Z(qubits[current_index]))
             circuitZ.append(cirq.Z(qubits[right_neighbor]))
             vector2 = simulator.simulate(circuitZ).state_vector()
             value += np.dot(vector2.conj(), vector)
 
+    # Calculate the expectation value for column interactions
+    for i in range(length):
+        for j in range(width-edge):
+            current_index = j * length + i
+            down_neighbor = ((j + 1) % width) * length + i
 
-            down_neighbor = ((i + 1) % rows) * cols + j
-            #print(f'Adding gates to qubits {current_index} and {down_neighbor} (down)...')
+            # Create copies of the circuit for X, Y, Z operations
             circuitX = anzats.circuit.copy()
             circuitY = anzats.circuit.copy()
             circuitZ = anzats.circuit.copy()
 
+            # Append X operations and simulate
             circuitX.append(cirq.X(qubits[current_index]))
             circuitX.append(cirq.X(qubits[down_neighbor]))
             vector2 = simulator.simulate(circuitX).state_vector()
             value += np.dot(vector2.conj(), vector)
 
+            # Append Y operations and simulate
             circuitY.append(cirq.Y(qubits[current_index]))
             circuitY.append(cirq.Y(qubits[down_neighbor]))
             vector2 = simulator.simulate(circuitY).state_vector()
             value += np.dot(vector2.conj(), vector)
 
+            # Append Z operations and simulate
             circuitZ.append(cirq.Z(qubits[current_index]))
             circuitZ.append(cirq.Z(qubits[down_neighbor]))
             vector2 = simulator.simulate(circuitZ).state_vector()
             value += np.dot(vector2.conj(), vector)
-    #print('End')
+
+    # Return the real part of the calculated value
     return np.real(value)
+
+
+# def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta):
+#     # periodic boundary
+#     anzats = AnzatsAFMHeisenbergLattice(function_args.rows, function_args.cols, gamma, beta)
+#     circuit = anzats.circuit
+#     qubits = anzats.qubits
+#     simulator = qsimcirq.QSimSimulator(function_args.qsim_option)
+#     vector = simulator.simulate(circuit).state_vector()
+
+#     rows = function_args.rows
+#     cols  = function_args.cols
+#     value = 0 + 0j
+#     #print('Start')
+#     for i in range(rows):
+#         for j in range(cols):
+#             current_index = i * cols + j
+
+#             right_neighbor = i * cols + (j + 1) % cols
+#             #print(f'Adding gates to qubits {current_index} and {right_neighbor} (right)...')
+#             circuitX = anzats.circuit.copy()
+#             circuitY = anzats.circuit.copy()
+#             circuitZ = anzats.circuit.copy()
+
+#             circuitX.append(cirq.X(qubits[current_index]))
+#             circuitX.append(cirq.X(qubits[right_neighbor]))
+#             vector2 = simulator.simulate(circuitX).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+
+#             circuitY.append(cirq.Y(qubits[current_index]))
+#             circuitY.append(cirq.Y(qubits[right_neighbor]))
+#             vector2 = simulator.simulate(circuitY).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+
+#             circuitZ.append(cirq.Z(qubits[current_index]))
+#             circuitZ.append(cirq.Z(qubits[right_neighbor]))
+#             vector2 = simulator.simulate(circuitZ).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+
+
+#             down_neighbor = ((i + 1) % rows) * cols + j
+#             #print(f'Adding gates to qubits {current_index} and {down_neighbor} (down)...')
+#             circuitX = anzats.circuit.copy()
+#             circuitY = anzats.circuit.copy()
+#             circuitZ = anzats.circuit.copy()
+
+#             circuitX.append(cirq.X(qubits[current_index]))
+#             circuitX.append(cirq.X(qubits[down_neighbor]))
+#             vector2 = simulator.simulate(circuitX).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+
+#             circuitY.append(cirq.Y(qubits[current_index]))
+#             circuitY.append(cirq.Y(qubits[down_neighbor]))
+#             vector2 = simulator.simulate(circuitY).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+
+#             circuitZ.append(cirq.Z(qubits[current_index]))
+#             circuitZ.append(cirq.Z(qubits[down_neighbor]))
+#             vector2 = simulator.simulate(circuitZ).state_vector()
+#             value += np.dot(vector2.conj(), vector)
+#     #print('End')
+#     return np.real(value)
 
 class AFMHeisenbergArgs():
     def __init__(self, length, qsim_option):
