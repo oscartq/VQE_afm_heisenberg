@@ -5,6 +5,12 @@ import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
+# Add the ../py/ directory to the system path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+module_dir = os.path.join(script_dir, '../py')
+sys.path.insert(0, module_dir)
+
 from exact_expectation import get_exact_expectation_afm_heisenberg_lattice
 
 # Read directories from the TOML file
@@ -33,8 +39,8 @@ for i, number_l in enumerate(number_l_list):
             df = pd.read_csv(latest_file)
             if 'energy' in df.columns:
                 iterations = df['iter']
-                energy_values = df['energy']
-                energy_real_values = [np.real(complex(energy.replace('j', 'j'))) for energy in energy_values]
+                energy_real_values = df['energy']
+                #energy_real_values = [np.real(complex(energy.replace('j', 'j'))) for energy in energy_values]
                 
                 # Plot energy vs. iteration for each file
                 plt.plot(iterations, energy_real_values, 
@@ -51,6 +57,7 @@ plt.xlabel('Iteration', fontsize=20)  # Font size for x-axis label
 plt.ylabel('Energy', fontsize=20)  # Font size for y-axis label
 plt.legend(fontsize=10)  # Font size for legend
 plt.legend(loc='upper right')
+plt.title('Energy convergence \n 2x4 Heisenberg model')
 plt.grid(True)
 
 # Save the plot as an image file

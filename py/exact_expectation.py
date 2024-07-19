@@ -27,8 +27,6 @@ def run_exact_expectation_state(file_prefix, length, width, periodic=True):
             
     except ValueError:
         print("input a correct file_prefix: {}".format(file_prefix))
-
-    
             
 def get_exact_expectation_afm_heisenberg(length, periodic=True):
     # open boundary
