@@ -9,22 +9,10 @@ from expectation import AFMHeisenbergArgs
 def run_exact_expectation_state(file_prefix, length, width, periodic=True):
 
     try:
-        # if file_prefix=='4-1_ising':
-        #     return 
-        # if file_prefix=='4-2_critical-state':
-        #     return 
-        # if file_prefix=='4-3_tfim':
-        #     return 
-        # if file_prefix=='4-4_toric-code':
-        #     return 
         if file_prefix=='4-5_afm-heisenberg':
             return get_exact_expectation_afm_heisenberg(length, periodic)
         if file_prefix=='4-5-2_afm-heisenberg':
-            return get_exact_expectation_afm_heisenberg_lattice(length, width, periodic)
-        # if file_prefix=='70_bcs_hubbard':
-        #     coulomb = 4
-        #     return get_exact_expectation_hubbard_chain(length, coulomb, length/2, periodic)
-            
+            return get_exact_expectation_afm_heisenberg_lattice(length, width, periodic)  
     except ValueError:
         print("input a correct file_prefix: {}".format(file_prefix))
             
@@ -37,7 +25,6 @@ def get_exact_expectation_afm_heisenberg(length, periodic=True):
         ham += of.ops.QubitOperator(((i, "X"), ((i+1)%length, "X")))
         ham += of.ops.QubitOperator(((i, "Y"), ((i+1)%length, "Y")))
         ham += of.ops.QubitOperator(((i, "Z"), ((i+1)%length, "Z")))
-
 
     sparse_ham = of.linalg.get_sparse_operator(ham)
 

@@ -49,7 +49,7 @@ for i, number_l in enumerate(number_l_list):
 
 # Add the exact solution line
 for number_l in number_l_list:
-    exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / 2), 2)
+    exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / 2), 2, periodic=True)
     plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
 
 plt.tick_params(axis='both', labelsize=16)  # Font size for x and y axis labels

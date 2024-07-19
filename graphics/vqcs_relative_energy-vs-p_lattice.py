@@ -52,7 +52,7 @@ for i, number_l in enumerate(number_l_list):
             if 'energy' in df.columns:
                 # Get the value of the energy column from the last row
                 energy_value = df['energy'].iloc[-1]
-                exact_energy, state = get_exact_expectation_afm_heisenberg_lattice(int(number_l/2),2)
+                exact_energy, state = get_exact_expectation_afm_heisenberg_lattice(int(number_l/2),2, periodic=True)
                 energy_per_length_values[number_p] = energy_value / exact_energy
 
     # Collect data for plotting
