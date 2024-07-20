@@ -1,0 +1,27 @@
+        for index in range(gamma.size):
+            # Add gamma circuit (row-wise interactions)
+            for i in range(0, rows - edge, 2):
+                for j in range(0, cols):
+                    current_index = j * rows + i
+                    right_neighbor = j * rows + (i + 1) % rows
+                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+            
+            # Add beta circuit (row-wise interactions)
+            for i in range(1, rows - edge, 2):
+                for j in range(0, cols):
+                    current_index = j * rows + i
+                    right_neighbor = j * rows + (i + 1) % rows
+                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+
+            # Add beta circuit (column-wise interactions)
+            for i in range(0, rows):
+                for j in range(1, cols - edge, 2):
+                    current_index = j * rows + i
+                    down_neighbor = ((j + 1) % cols) * rows + i
+                    circuit.append(cirq.XX(qubits[current_index], qubits[down_neighbor]) ** (-alpha[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[down_neighbor]) ** (-alpha[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[down_neighbor]) ** (-alpha[index] * 2 / Pi))

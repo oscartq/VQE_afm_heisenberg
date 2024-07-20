@@ -282,3 +282,55 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
     
     gamma, beta = np.split(result.x, 2)
     return gamma, beta
+
+def optimize_by_lbfgsb_3p(function, initial_gamma, initial_beta, initial_alpha, bounds, figure=True, filepath=""):
+    gamma, beta, alpha = initial_gamma.copy(), initial_beta.copy(), initial_alpha.copy()
+    initial_params = np.concatenate([initial_gamma, initial_beta, initial_alpha])
+    
+    def energy_function(params):
+        gamma, beta, alpha = np.split(params, 3)
+        energy = function(gamma=gamma, beta=beta, alpha=alpha)
+        return energy
+    
+    history_params = []
+    history_energy = []
+
+    def callback(params):
+        history_params.append(params)
+        history_energy.append(energy_function(params))
+        gamma, beta, alpha = np.split(params, 3)
+        record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta) + list(alpha)
+        # Open the file in append mode and write the record
+        with open(filepath, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(record)
+            if figure:
+                print(record)
+            f.flush()
+            
+    # Write the header to the CSV file
+    with open(filepath, mode='w', newline='') as f:
+        writer = csv.writer(f)
+        headline = ["iter", "energy"]
+        for p in range(int(len(initial_gamma))):
+            headline.append("gamma[{}]".format(p))
+            headline.append("beta[{}]".format(p))
+            headline.append("alpha[{}]".format(p))
+        writer.writerow(headline)
+            
+    # Perform the optimization
+    result = minimize(
+                fun     = energy_function,
+                x0      = initial_params,
+                jac     = "3-point",
+                method  = 'L-BFGS-B',
+                options = {'gtol': 1e-8},
+                bounds  = [(0,None)]*len(initial_params),
+                tol     = 1e-10,
+                callback=callback
+                )
+    
+    print(result)
+    
+    gamma, beta, alpha = np.split(result.x, 3)
+    return gamma, beta, alpha
