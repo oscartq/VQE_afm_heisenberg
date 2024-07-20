@@ -232,13 +232,25 @@ def optimize_by_gradient_descent_multiprocess(function, initial_gamma, initial_b
 
     return gamma, beta
 
-def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=True, filepath=""):
-    gamma, beta = initial_gamma.copy(), initial_beta.copy()
-    initial_params = np.concatenate([initial_gamma, initial_beta])
+def optimize_by_lbfgsb(function, initial_gamma, initial_beta, initial_phi=None, bounds=None, parameters=2, figure=True, filepath=""):
+    if parameters == 2:
+        gamma, beta = initial_gamma.copy(), initial_beta.copy()
+        initial_params = np.concatenate([initial_gamma, initial_beta])
+        split_count = 2
+    elif parameters == 3:
+        gamma, beta, phi = initial_gamma.copy(), initial_beta.copy(), initial_phi.copy()
+        initial_params = np.concatenate([initial_gamma, initial_beta, initial_phi])
+        split_count = 3
+    else:
+        raise ValueError("Unsupported number of parameters. Only 2 or 3 parameters are supported.")
     
     def energy_function(params):
-        gamma, beta = np.split(params, 2)
-        energy = function(gamma=gamma, beta=beta)
+        if parameters == 2:
+            gamma, beta = np.split(params, split_count)
+            energy = function(gamma=gamma, beta=beta)
+        elif parameters == 3:
+            gamma, beta, phi = np.split(params, split_count)
+            energy = function(gamma=gamma, beta=beta, phi=phi)
         return energy
     
     history_params = []
@@ -247,8 +259,13 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
     def callback(params):
         history_params.append(params)
         history_energy.append(energy_function(params))
-        gamma, beta = np.split(params, 2)
-        record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta)
+        if parameters == 2:
+            gamma, beta = np.split(params, split_count)
+            record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta)
+        elif parameters == 3:
+            gamma, beta, phi = np.split(params, split_count)
+            record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta) + list(phi)
+        
         # Open the file in append mode and write the record
         with open(filepath, mode='a', newline='') as f:
             writer = csv.writer(f)
@@ -264,73 +281,34 @@ def optimize_by_lbfgsb(function, initial_gamma, initial_beta, bounds, figure=Tru
         for p in range(int(len(initial_gamma))):
             headline.append("gamma[{}]".format(p))
             headline.append("beta[{}]".format(p))
+            if parameters == 3:
+                headline.append("phi[{}]".format(p))
         writer.writerow(headline)
             
     # Perform the optimization
+    if bounds is None:
+        bounds = [(0, None)] * len(initial_params)
+
     result = minimize(
-                fun     = energy_function,
-                x0      = initial_params,
-                jac     = "3-point",
-                method  = 'L-BFGS-B',
-                options = {'gtol': 1e-8},
-                bounds  = [(0,None)]*len(initial_params),
-                tol     = 1e-10,
+                fun=energy_function,
+                x0=initial_params,
+                jac="3-point",
+                method='L-BFGS-B',
+                options={'gtol': 1e-8},
+                bounds=bounds,
+                tol=1e-10,
                 callback=callback
                 )
     
     print(result)
     
-    gamma, beta = np.split(result.x, 2)
-    return gamma, beta
+    if parameters == 2:
+        gamma, beta = np.split(result.x, split_count)
+        return gamma, beta
+    elif parameters == 3:
+        gamma, beta, phi = np.split(result.x, split_count)
+        return gamma, beta, phi
 
-def optimize_by_lbfgsb_3p(function, initial_gamma, initial_beta, initial_alpha, bounds, figure=True, filepath=""):
-    gamma, beta, alpha = initial_gamma.copy(), initial_beta.copy(), initial_alpha.copy()
-    initial_params = np.concatenate([initial_gamma, initial_beta, initial_alpha])
-    
-    def energy_function(params):
-        gamma, beta, alpha = np.split(params, 3)
-        energy = function(gamma=gamma, beta=beta, alpha=alpha)
-        return energy
-    
-    history_params = []
-    history_energy = []
-
-    def callback(params):
-        history_params.append(params)
-        history_energy.append(energy_function(params))
-        gamma, beta, alpha = np.split(params, 3)
-        record = [len(history_energy), energy_function(params)] + list(gamma) + list(beta) + list(alpha)
-        # Open the file in append mode and write the record
-        with open(filepath, mode='a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(record)
-            if figure:
-                print(record)
-            f.flush()
-            
-    # Write the header to the CSV file
-    with open(filepath, mode='w', newline='') as f:
-        writer = csv.writer(f)
-        headline = ["iter", "energy"]
-        for p in range(int(len(initial_gamma))):
-            headline.append("gamma[{}]".format(p))
-            headline.append("beta[{}]".format(p))
-            headline.append("alpha[{}]".format(p))
-        writer.writerow(headline)
-            
-    # Perform the optimization
-    result = minimize(
-                fun     = energy_function,
-                x0      = initial_params,
-                jac     = "3-point",
-                method  = 'L-BFGS-B',
-                options = {'gtol': 1e-8},
-                bounds  = [(0,None)]*len(initial_params),
-                tol     = 1e-10,
-                callback=callback
-                )
-    
-    print(result)
-    
-    gamma, beta, alpha = np.split(result.x, 3)
-    return gamma, beta, alpha
+# Example usage:
+# gamma, beta = optimize_by_lbfgsb(my_function, initial_gamma, initial_beta, parameters=2)
+# gamma, beta, phi = optimize_by_lbfgsb(my_function, initial_gamma, initial_beta, initial_phi, parameters=3)

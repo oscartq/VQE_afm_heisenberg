@@ -22,25 +22,12 @@ class Anzats():
                 circuit.append(
                     cirq.ZZ(qubits[i], qubits[(i+1)%length]) ** (gamma[index]*2/Pi)
                     )
-                # circuit.append(
-                #     cirq.ZZPowGate(
-                #         exponent=gamma[index]/Pi, global_shift=0.0).on(
-                #             qubits[i], qubits[(i+1)%length]
-                #     )
-                # )
-            # add gates on 2n-1 and 2n
+                
             for i in range(0, length, 2):
                 circuit.append(
                     cirq.ZZ(qubits[i], qubits[(i+1)%length]) ** (gamma[index]*2/Pi)
                     )
-                # circuit.append(
-                #     cirq.ZZPowGate(
-                #         exponent=gamma[index]/Pi, global_shift=0.0).on(
-                #             qubits[i], qubits[(i+1)%length]
-                #         )
-                # )
-
-            # add beta circuit
+                
             for i in range(length):
                 circuit.append(
                     cirq.XPowGate(
