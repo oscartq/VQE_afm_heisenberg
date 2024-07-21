@@ -23,6 +23,7 @@ with open('graphics.toml', 'r') as f:
     save_fig_directory = config['save_fig_directory']
     number_l_list = config['number_l']
     number_p_list = config['number_p']
+    periodic = config["periodic"]
 
 if not os.path.exists(save_fig_directory):
     os.mkdir(save_fig_directory)
@@ -52,7 +53,7 @@ for i, number_l in enumerate(number_l_list):
             if 'energy' in df.columns:
                 # Get the value of the energy column from the last row
                 energy_value = df['energy'].iloc[-1]
-                exact_energy, state = get_exact_expectation_afm_heisenberg(number_l)
+                exact_energy, state = get_exact_expectation_afm_heisenberg(number_l, None, periodic)
                 energy_per_length_values[number_p] = energy_value / exact_energy
 
     # Collect data for plotting

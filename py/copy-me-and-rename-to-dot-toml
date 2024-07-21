@@ -1,38 +1,14 @@
-["4-2_critical_state"]
+["afm-heisenberg"]
     length_list = [8]
-    p_list = [2,4]
-    g = 1.0
-    alpha = 0.01
+    p_list = [4]
+    alpha = 0.001
     delta_gamma = 0.001
     delta_beta = 0.001
-    iteration = 100
-    results_dir_path = ".results"
+    iteration = 10
+    results_dir_path = ".results/Gradient_descent"
     
-["4-3_tfim"]
+["afm-heisenberg-lattice"]
     length_list = [8]
-    p_list = [2,4]
-    g = 0.5
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta = 0.001
-    iteration = 100
-    results_dir_path = ".results"
-
-["4-4_toric_code"]
-    length_list = [8]
-    p_list = [2,4]
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta = 0.001
-    iteration = 100
-    results_dir_path = ".results"
-
-
-["4-5_afm-heisenberg"]
-    length_list = [8]
-    p_list = [2,4]
-    alpha = 0.01
-    delta_gamma = 0.001
-    delta_beta = 0.001
-    iteration = 100
-    results_dir_path = ".results"
+    p_list = [4]
+    periodic = True
+    results_dir_path = ".results/BFGS_lattice"

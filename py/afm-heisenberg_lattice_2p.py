@@ -15,7 +15,7 @@ from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_
 optmization = "scipy"
 
 def main(): #Main function
-    output_file_prefix = "4-5_afm-heisenberg"
+    output_file_prefix = "afm-heisenberg-lattice"
   
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)

@@ -16,7 +16,7 @@ optmization = "gradient-descent"
 PBC = True
 
 def main(): #Main function
-    output_file_prefix = "4-5_afm-heisenberg"
+    output_file_prefix = "afm-heisenberg"
   
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
