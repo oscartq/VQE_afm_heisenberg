@@ -22,7 +22,7 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     save_fig_directory = config['save_fig_directory']
     number_l_list = config['number_l']
     number_p_list = config['number_p']
-    width = config['width']
+    width = config.get("width", None)
     periodic = config['periodic']
 
 if not os.path.exists(save_fig_directory):

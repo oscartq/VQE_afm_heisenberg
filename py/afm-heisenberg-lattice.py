@@ -9,21 +9,21 @@ from anzats import Anzats
 from expectation import get_expectation_afm_heisenberg_lattice, AFMHeisenbergLatticeArgs
 from optimization import optimize_by_lbfgsb
 
-def main(): #Main function
+def main():
     output_file_prefix = "afm-heisenberg-lattice"
-  
+    
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
-        
+
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    periodic = config[output_file_prefix]["periodic"]
+    width = config[output_file_prefix]["width_list"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
-
+    
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
         print(f"Directory {results_dir_path} created.")
-    if os.path.exists(results_dir_path):
+    else:
         shutil.rmtree(results_dir_path)
         os.mkdir(results_dir_path)
         print(f"Directory {results_dir_path} cleared.")
@@ -53,9 +53,10 @@ def main(): #Main function
                 f.write("p            ={}\n".format(p))
                 f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
                 f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
+                f.write("initial_phi ={}\n".format("[" + ", ".join(str(value) for value in initial_phi.tolist()) + "]"))
                 # f.write("iteration    ={}\n".format(iteration))
 
-            function_args = AFMHeisenbergLatticeArgs(int(length/2), 2, qsim_option)
+            function_args = AFMHeisenbergLatticeArgs(int(length/width), width, qsim_option)
 
             gamma, beta, phi = optimize_by_lbfgsb(
                 function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),
