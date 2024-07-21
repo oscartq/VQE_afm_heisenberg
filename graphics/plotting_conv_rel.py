@@ -22,7 +22,7 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     save_fig_directory = config['save_fig_directory']
     number_l_list = config['number_l']
     number_p_list = config['number_p']
-    width = config.get("width", None)
+    rows_list = config['number_row']
     periodic = config['periodic']
 
 if not os.path.exists(save_fig_directory):
@@ -53,8 +53,9 @@ for i, number_l in enumerate(number_l_list):
             if 'energy' in df.columns:
                 # Get the value of the energy column from the last row
                 energy_value = df['energy'].iloc[-1]
-                exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / width), width, periodic)
+                exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic)
                 energy_per_length_values[number_p] = energy_value / exact_energy
+                
     # Collect data for plotting
     plot_data.append((number_l, energy_per_length_values))
 

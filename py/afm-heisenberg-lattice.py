@@ -17,7 +17,7 @@ def main():
 
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    width = config[output_file_prefix]["width_list"]
+    rows_list = config[output_file_prefix]["rows_list"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
     
     if not os.path.exists(results_dir_path):
@@ -56,7 +56,7 @@ def main():
                 f.write("initial_phi ={}\n".format("[" + ", ".join(str(value) for value in initial_phi.tolist()) + "]"))
                 # f.write("iteration    ={}\n".format(iteration))
 
-            function_args = AFMHeisenbergLatticeArgs(int(length/width), width, qsim_option)
+            function_args = AFMHeisenbergLatticeArgs(int(length/rows_list[0]), rows_list[0], qsim_option)
 
             gamma, beta, phi = optimize_by_lbfgsb(
                 function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),

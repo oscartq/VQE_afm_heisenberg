@@ -22,10 +22,7 @@ def main(): #Main function
         
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    alpha = config[output_file_prefix]["alpha"]
-    delta_gamma = config[output_file_prefix]["delta_gamma"]
-    delta_beta = config[output_file_prefix]["delta_beta"]
-    iteration = config[output_file_prefix]["iteration"]
+    width = config[output_file_prefix]["width_list"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
 
     if not os.path.exists(results_dir_path):
