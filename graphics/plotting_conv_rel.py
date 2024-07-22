@@ -12,7 +12,9 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 module_dir = os.path.join(script_dir, '../py')
 sys.path.insert(0, module_dir)
 
-from exact_expectation import get_exact_expectation_afm_heisenberg
+from exact_expectation import get_exact_expectation_afm_heisenberg, get_exact_expectation_afm_heisenberg_lattice
+
+periodic = True
 
 # Read the directory from the TOML file
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f:
@@ -23,8 +25,7 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     number_l_list = config['number_l']
     number_p_list = config['number_p']
     rows_list = config['number_row']
-    periodic = config['periodic']
-
+    
 if not os.path.exists(save_fig_directory):
     os.mkdir(save_fig_directory)
     print(f"Directory {save_fig_directory} created.")
@@ -53,7 +54,8 @@ for i, number_l in enumerate(number_l_list):
             if 'energy' in df.columns:
                 # Get the value of the energy column from the last row
                 energy_value = df['energy'].iloc[-1]
-                exact_energy, _ = get_exact_expectation_afm_heisenberg(int(number_l / rows_list[0]), rows_list[0], periodic)
+                exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic=True)
+                #exact_energy, _ = get_exact_expectation_afm_heisenberg(int(number_l / rows_list[0]), rows_list[0], periodic)
                 energy_per_length_values[number_p] = energy_value / exact_energy
                 
     # Collect data for plotting
@@ -117,7 +119,7 @@ for i, number_l in enumerate(number_l_list):
 
 # Add the exact solution line
 for number_l in number_l_list:
-    exact_energy, _ = get_exact_expectation_afm_heisenberg(int(number_l / rows_list[0]), rows_list[0], periodic=True)
+    exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic=True)
     plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
 
 plt.tick_params(axis='both', labelsize=16)

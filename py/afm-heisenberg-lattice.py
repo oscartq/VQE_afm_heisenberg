@@ -63,7 +63,7 @@ def main():
                 initial_gamma=initial_gamma,
                 initial_beta=initial_beta,
                 initial_phi=initial_phi,
-                bounds=[(0, 1)] * (3 * p),
+                bounds=None,#[(0, 1)] * (3 * p),
                 parameters=3,
                 figure=True,
                 filepath=csvpath)

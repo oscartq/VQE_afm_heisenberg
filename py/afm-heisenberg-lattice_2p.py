@@ -22,7 +22,7 @@ def main(): #Main function
         
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
-    width = config[output_file_prefix]["width_list"]
+    rows_list = config[output_file_prefix]["rows_list"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
 
     if not os.path.exists(results_dir_path):
@@ -61,9 +61,6 @@ def main(): #Main function
                     f.write("alpha        ={}\n".format(alpha))
                     f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
                     f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
-                    f.write("delta_gamma  ={}\n".format(delta_gamma))
-                    f.write("delta_beta   ={}\n".format(delta_beta))
-                    f.write("iteration    ={}\n".format(iteration))
 
                 function_args = AFMHeisenbergLatticeArgs(int(length/2), 2, qsim_option)
 
@@ -103,13 +100,13 @@ def main(): #Main function
                     f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
                     # f.write("iteration    ={}\n".format(iteration))
 
-                function_args = AFMHeisenbergLatticeArgs(int(length/2), 2, qsim_option)
+                function_args = AFMHeisenbergLatticeArgs(int(length/rows_list[0]), rows_list[0], qsim_option)
 
                 gamma, beta = optimize_by_lbfgsb(
                     function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),
                     initial_gamma=initial_gamma,
                     initial_beta=initial_beta,
-                    bounds=[(0, 1)] * (2 * p),
+                    bounds=None,#[(0, 1)] * (2 * p),
                     figure=True,
                     filepath=csvpath)
     else:
