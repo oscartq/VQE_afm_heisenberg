@@ -59,14 +59,13 @@ def get_exact_expectation_afm_heisenberg(length, width=None, periodic=False):
 def get_exact_expectation_afm_heisenberg_lattice(length, width, periodic=True):
     # open boundary
     ham = of.ops.QubitOperator()
-    
+
     edge = 1-1 if periodic else 1-0
     # row
     for i in range(length-edge):
         for j in range(width):
             current_index = j * length + i
             right_neighbor = j * length + (i + 1) % length
-
             ham += of.ops.QubitOperator(((current_index, "X"), (right_neighbor, "X")))
             ham += of.ops.QubitOperator(((current_index, "Y"), (right_neighbor, "Y")))
             ham += of.ops.QubitOperator(((current_index, "Z"), (right_neighbor, "Z")))
