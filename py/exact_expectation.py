@@ -16,7 +16,7 @@ def run_exact_expectation_state(file_prefix, length, width, periodic=True):
     except ValueError:
         print("input a correct file_prefix: {}".format(file_prefix))
 
-def get_exact_expectation_afm_heisenberg(length, width=None, periodic=True):
+def get_exact_expectation_afm_heisenberg(length, width=None, periodic=False):
     ham = of.ops.QubitOperator()
 
     if width is None:
