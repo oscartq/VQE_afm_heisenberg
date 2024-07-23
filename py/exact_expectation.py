@@ -16,76 +16,57 @@ def run_exact_expectation_state(file_prefix, length, width, periodic=True):
     except ValueError:
         print("input a correct file_prefix: {}".format(file_prefix))
 
-def get_exact_expectation_afm_heisenberg(length, width=None, periodic=False):
-    ham = of.ops.QubitOperator()
-
-    if width is None:
-        # 1D chain case
-        #print('1D exact expectation')
-        edge = 1 if periodic else 0
-        for i in range(length - edge):
-            ham += of.ops.QubitOperator(((i, "X"), ((i + 1) % length, "X")))
-            ham += of.ops.QubitOperator(((i, "Y"), ((i + 1) % length, "Y")))
-            ham += of.ops.QubitOperator(((i, "Z"), ((i + 1) % length, "Z")))
-    else:
-        # 2D lattice case
-        #print('2D exact expectation')
-        edge = 1 if periodic else 0
-        # row interactions
-        for i in range(length - edge):
-            for j in range(width):
-                current_index = j * length + i
-                right_neighbor = j * length + (i + 1) % length
-
-                ham += of.ops.QubitOperator(((current_index, "X"), (right_neighbor, "X")))
-                ham += of.ops.QubitOperator(((current_index, "Y"), (right_neighbor, "Y")))
-                ham += of.ops.QubitOperator(((current_index, "Z"), (right_neighbor, "Z")))
-
-        # column interactions
-        for i in range(length):
-            for j in range(width - edge):
-                current_index = j * length + i
-                down_neighbor = ((j + 1) % width) * length + i
-
-                ham += of.ops.QubitOperator(((current_index, "X"), (down_neighbor, "X")))
-                ham += of.ops.QubitOperator(((current_index, "Y"), (down_neighbor, "Y")))
-                ham += of.ops.QubitOperator(((current_index, "Z"), (down_neighbor, "Z")))
-
-    sparse_ham = of.linalg.get_sparse_operator(ham)
-    energy, state = of.linalg.get_ground_state(sparse_ham, initial_guess=None)
-
-    return energy, state
-
-def get_exact_expectation_afm_heisenberg_lattice(length, width, periodic=True):
+def get_exact_expectation_afm_heisenberg(length, periodic=True):
     # open boundary
     ham = of.ops.QubitOperator()
 
     edge = 1-1 if periodic else 1-0
-    # row
     for i in range(length-edge):
-        for j in range(width):
-            current_index = j * length + i
-            right_neighbor = j * length + (i + 1) % length
-            ham += of.ops.QubitOperator(((current_index, "X"), (right_neighbor, "X")))
-            ham += of.ops.QubitOperator(((current_index, "Y"), (right_neighbor, "Y")))
-            ham += of.ops.QubitOperator(((current_index, "Z"), (right_neighbor, "Z")))
-
-    # column
-    for i in range(length):
-        for j in range(width-edge):
-            current_index = j * length + i
-            down_neighbor = ((j + 1) % width) * length + i 
-            ham += of.ops.QubitOperator(((current_index, "X"), (down_neighbor, "X")))
-            ham += of.ops.QubitOperator(((current_index, "Y"), (down_neighbor, "Y")))
-            ham += of.ops.QubitOperator(((current_index, "Z"), (down_neighbor, "Z")))
+        ham += of.ops.QubitOperator(((i, "X"), ((i+1)%length, "X")))
+        ham += of.ops.QubitOperator(((i, "Y"), ((i+1)%length, "Y")))
+        ham += of.ops.QubitOperator(((i, "Z"), ((i+1)%length, "Z")))
 
     sparse_ham = of.linalg.get_sparse_operator(ham)
+    # sparse_ham = of.linalg.generate_linear_qubit_operator(ham)
 
     energy, state = of.linalg.get_ground_state(
         sparse_ham, initial_guess=None
     )
 
     return energy, state 
+
+def get_exact_expectation_afm_heisenberg_lattice(rows, cols, periodic=True):
+    # open boundary
+    ham = of.ops.QubitOperator()
+
+    edge = 1-1 if periodic else 1-0
+    # row
+    for i in range(rows-edge):
+        for j in range(cols):
+            current_index = j * rows + i
+            right_neighbor = j * rows + (i + 1) % rows
+            ham += of.ops.QubitOperator(((current_index, "X"), (right_neighbor, "X")))
+            ham += of.ops.QubitOperator(((current_index, "Y"), (right_neighbor, "Y")))
+            ham += of.ops.QubitOperator(((current_index, "Z"), (right_neighbor, "Z")))
+
+    # column
+    for i in range(rows):
+        for j in range(cols-edge):
+            current_index = j * rows + i
+            down_neighbor = ((j + 1) % cols) * rows + i 
+            ham += of.ops.QubitOperator(((current_index, "X"), (down_neighbor, "X")))
+            ham += of.ops.QubitOperator(((current_index, "Y"), (down_neighbor, "Y")))
+            ham += of.ops.QubitOperator(((current_index, "Z"), (down_neighbor, "Z")))
+
+    sparse_ham = of.linalg.get_sparse_operator(ham)
+    # sparse_ham = of.linalg.generate_linear_qubit_operator(ham)
+    # sparse_ham = ham
+
+    energy, state = of.linalg.get_ground_state(
+        sparse_ham, initial_guess=None
+    )
+
+    return energy, state
 
 def main():
     """outputs exact energies on model parameters

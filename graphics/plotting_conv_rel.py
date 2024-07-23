@@ -14,8 +14,6 @@ sys.path.insert(0, module_dir)
 
 from exact_expectation import get_exact_expectation_afm_heisenberg, get_exact_expectation_afm_heisenberg_lattice
 
-periodic = True
-
 # Read the directory from the TOML file
 with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f:
     config = toml.load(f)
@@ -25,7 +23,16 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     number_l_list = config['number_l']
     number_p_list = config['number_p']
     rows_list = config['number_row']
+    boundary_condition = config["boundary_condition"]
     
+    if boundary_condition == "PBC":
+        periodic = True
+    elif boundary_condition == "OBC":
+        periodic = False
+    else:
+        periodic = False
+        print(f'{boundary_condition} not valid boundary condition, using OBC.')    
+        
 if not os.path.exists(save_fig_directory):
     os.mkdir(save_fig_directory)
     print(f"Directory {save_fig_directory} created.")
@@ -118,14 +125,20 @@ for i, number_l in enumerate(number_l_list):
                          label=f'L = {number_l}, p = {number_p}')
 
 # Add the exact solution line
-for number_l in number_l_list:
-    exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic)
-    plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
-
+if csv_prefix == "afm-heisenberg-lattice":
+    for number_l in number_l_list:
+        exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic)
+        plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
+        
+elif csv_prefix == "afm-heisenberg":
+    for number_l in number_l_list:
+        exact_energy, _ = get_exact_expectation_afm_heisenberg(number_l, periodic)
+        plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
+        
 plt.tick_params(axis='both', labelsize=16)
 plt.xlabel('Iteration', fontsize=20)
 plt.ylabel('Energy', fontsize=20)
-plt.title('Energy convergence \n 2x4 Heisenberg model')
+plt.title(f'Energy convergence \n {rows_list[0]}x{int(number_l / rows_list[0])} Heisenberg model')
 plt.legend(fontsize=10)
 plt.grid(True)
 

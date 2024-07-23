@@ -6,18 +6,24 @@ from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenbergLattice, Anza
 import qsimcirq
 
 class AFMHeisenbergLatticeArgs():
-    def __init__(self, rows, cols, qsim_option):
+    def __init__(self, rows, cols, periodic, qsim_option):
         self.rows = rows
         self.cols  = cols
         self.qsim_option = qsim_option
+        self.periodic = periodic
 
 def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta, phi=None):
+    # Variables from function_args
+    rows = function_args.rows
+    cols = function_args.cols
+    periodic = function_args.periodic
+    
     if phi is None:
         # Create an instance of the AnzatsAFMHeisenbergLattice class
-        anzats = AnzatsAFMHeisenbergLattice(function_args.rows, function_args.cols, gamma, beta)
+        anzats = AnzatsAFMHeisenbergLattice(function_args.rows, function_args.cols, gamma, beta, periodic)
     else:
         # Create an instance of the AnzatsAFMHeisenbergLattice_3p class
-        anzats = AnzatsAFMHeisenbergLattice_3p(function_args.rows, function_args.cols, gamma, beta, phi)
+        anzats = AnzatsAFMHeisenbergLattice_3p(function_args.rows, function_args.cols, gamma, beta, phi, periodic)
     
     # Extract the circuit and qubits from the anzats object
     circuit = anzats.circuit
@@ -28,11 +34,8 @@ def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta, phi=None)
     
     # Simulate the circuit and get the state vector
     vector = simulator.simulate(circuit).state_vector()
-
-    # Extract rows and cols from function_args
-    rows = function_args.rows
-    cols = function_args.cols
-    edge = 0 
+    
+    edge = 1-1 if periodic else 1-0
     value = 0 + 0j
 
     # Calculate the expectation value for row interactions

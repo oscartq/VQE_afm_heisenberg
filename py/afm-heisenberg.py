@@ -12,10 +12,9 @@ from anzats import Anzats
 from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent, optimize_by_lbfgsb
 
-optmization = "gradient-descent"
-PBC = True
-
 def main(): #Main function
+    optmization = "scipy" #gradient-descent or scipy
+    
     output_file_prefix = "afm-heisenberg"
   
     with open(".toml", mode="rb") as f:

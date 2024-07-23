@@ -10,6 +10,8 @@ from expectation import get_expectation_afm_heisenberg_lattice, AFMHeisenbergLat
 from optimization import optimize_by_lbfgsb
 
 def main():
+    periodic = False #PBC = True, OBC = False
+    
     output_file_prefix = "afm-heisenberg-lattice"
     
     with open(".toml", mode="rb") as f:
@@ -18,7 +20,16 @@ def main():
     length_list = config[output_file_prefix]["length_list"]
     p_list = config[output_file_prefix]["p_list"]
     rows_list = config[output_file_prefix]["rows_list"]
+    boundary_condition = config[output_file_prefix]["boundary_condition"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
+    
+    if boundary_condition == "PBC":
+        periodic = True
+    elif boundary_condition == "OBC":
+        periodic = False
+    else:
+        periodic = False
+        print(f'{boundary_condition} not valid boundary condition, using OBC.')
     
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
@@ -56,7 +67,7 @@ def main():
                 f.write("initial_phi ={}\n".format("[" + ", ".join(str(value) for value in initial_phi.tolist()) + "]"))
                 # f.write("iteration    ={}\n".format(iteration))
 
-            function_args = AFMHeisenbergLatticeArgs(int(length/rows_list[0]), rows_list[0], qsim_option)
+            function_args = AFMHeisenbergLatticeArgs(int(length/rows_list[0]), rows_list[0], periodic, qsim_option)
 
             gamma, beta, phi = optimize_by_lbfgsb(
                 function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),
