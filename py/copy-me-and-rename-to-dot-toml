@@ -11,4 +11,5 @@
     length_list = [8]
     p_list = [4]
     periodic = True
+    boundary_condition = "OBC"
     results_dir_path = ".results/BFGS_lattice"
