@@ -1,6 +1,6 @@
 .ignore
 .ignore/
-.results/
+#.results/
 .toml
 *.toml
 .DS_Store
