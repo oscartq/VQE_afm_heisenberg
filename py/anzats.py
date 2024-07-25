@@ -91,66 +91,6 @@ class AnzatsAFMHeisenberg():
         )   
 
 class AnzatsAFMHeisenbergLattice():
-    def __init__(self, rows, cols, gamma, beta, periodic = True):
-             
-        # Initialize circuit and qubits
-        circuit = cirq.Circuit()
-        qubits = cirq.LineQubit.range(rows * cols)
-        
-        edge = 1-1 if periodic else 1-0
-        
-        # Create the initial circuit with Hadamard, Y, X, and CNOT gates
-        for i in range(0, rows - edge, 2):
-            for j in range(0, cols):
-                current_index = j * rows + i
-                right_neighbor = j * rows+ (i + 1) % rows
-                circuit.append(cirq.H(qubits[current_index]))
-                circuit.append(cirq.Y(qubits[current_index]))
-                circuit.append(cirq.X(qubits[right_neighbor]))
-                circuit.append(cirq.CNOT(qubits[current_index], qubits[right_neighbor]))
-
-        # Add gamma and beta operations to the circuit
-        for index in range(gamma.size):
-            # Add gamma circuit (row-wise interactions)
-            for i in range(0, rows - edge, 2):
-                for j in range(0, cols):
-                    current_index = j * rows + i
-                    right_neighbor = j * rows + (i + 1) % rows
-                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
-                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
-                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
-            
-            # Add beta circuit (row-wise interactions)
-            for i in range(1, rows - edge, 2):
-                for j in range(0, cols):
-                    current_index = j * rows + i
-                    right_neighbor = j * rows + (i + 1) % rows
-                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
-                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
-                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
-
-            # Add beta circuit (column-wise interactions)
-            for i in range(0, rows):
-                for j in range(1, cols - edge, 2):
-                    current_index = j * rows + i
-                    down_neighbor = ((j + 1) % cols) * rows + i
-                    circuit.append(cirq.XX(qubits[current_index], qubits[down_neighbor]) ** (-beta[index] * 2 / Pi))
-                    circuit.append(cirq.YY(qubits[current_index], qubits[down_neighbor]) ** (-beta[index] * 2 / Pi))
-                    circuit.append(cirq.ZZ(qubits[current_index], qubits[down_neighbor]) ** (-beta[index] * 2 / Pi))
-
-        # Store circuit, qubits, gamma, and beta parameters
-        self.circuit = circuit
-        self.qubits = qubits
-        self.gamma = gamma
-        self.beta = beta
-
-    def circuit_to_latex_using_qcircuit(self):
-        # Convert the circuit to LaTeX format using QCircuit
-        return cirq.contrib.circuit_to_latex_using_qcircuit(
-            self.circuit, self.qubits
-        )
-
-class AnzatsAFMHeisenbergLattice_3p():
     def __init__(self, rows, cols, gamma, beta, phi, periodic = True):
         # Initialize circuit and qubits
         circuit = cirq.Circuit()
@@ -208,7 +148,128 @@ class AnzatsAFMHeisenbergLattice_3p():
         return cirq.contrib.circuit_to_latex_using_qcircuit(
             self.circuit, self.qubits
         )
+
+class AnzatsAFMHeisenbergLattice_grid():
+    def __init__(self, rows, cols, gamma, beta, phi, periodic = True):
+        # Initialize circuit and qubits
+        circuit = cirq.Circuit()
+        qubits = [cirq.GridQubit(row, col) for row in range(rows) for col in range(cols)]
         
+        edge = 1-1 if periodic else 1-0
+        
+        # Create the initial circuit with Hadamard, Y, X, and CNOT gates
+        for i in range(0, rows):
+            for j in range(0, cols, 2):
+                circuit.append(cirq.H(cirq.GridQubit(i, j)))#(cirq.H(qubits[current_index]))
+                circuit.append(cirq.Y(cirq.GridQubit(i, j)))#(cirq.Y(qubits[current_index]))
+                circuit.append(cirq.X(cirq.GridQubit(i, j+1)))#(cirq.X(qubits[right_neighbor]))
+                circuit.append(cirq.CNOT(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)))#(cirq.CNOT(qubits[current_index], qubits[right_neighbor]))
+    
+        # Add gamma and beta operations to the circuit
+        for index in range(gamma.size):
+            # Add gamma circuit (row-wise interactions)
+            for i in range(0, rows):
+                for j in range(0, cols, 2):
+                    circuit.append(cirq.XX(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.YY(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-gamma[index] * 2 / Pi))
+            
+            # Add beta circuit (row-wise interactions)
+            for i in range(0, rows):
+                for j in range(1, cols, 2):
+                    circuit.append(cirq.XX(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.YY(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(cirq.GridQubit(i, j), cirq.GridQubit(i, j+1)) ** (-beta[index] * 2 / Pi))
+
+            # Add phi circuit (column-wise interactions)
+            for i in range(0, rows, 2):
+                for j in range(0, cols):
+                    circuit.append(cirq.XX(cirq.GridQubit(i, j), cirq.GridQubit(i+1, j)) ** (-phi[index] * 2 / Pi))
+                    circuit.append(cirq.YY(cirq.GridQubit(i, j), cirq.GridQubit(i+1, j)) ** (-phi[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(cirq.GridQubit(i, j), cirq.GridQubit(i+1, j)) ** (-phi[index] * 2 / Pi))
+
+        # Store circuit, qubits, gamma, beta, and phi parameters
+        self.circuit = circuit
+        self.qubits = qubits
+        self.gamma = gamma
+        self.beta = beta
+        self.phi = phi
+
+    def circuit_to_latex_using_qcircuit(self):
+        # Convert the circuit to LaTeX format using QCircuit
+        return cirq.contrib.circuit_to_latex_using_qcircuit(
+            self.circuit, self.qubits
+        )
+
+class AnzatsAFMHeisenbergMatrix():
+    def __init__(self, rows, cols, gamma, beta, phi, theta, periodic = True):
+        # Initialize circuit and qubits
+        circuit = cirq.Circuit()
+        qubits = cirq.LineQubit.range(rows * cols)
+        
+        edge = 1-1 if periodic else 1-0
+        
+        # Create the initial circuit with Hadamard, Y, X, and CNOT gates
+        for i in range(0, rows - edge, 2):
+            for j in range(0, cols):
+                current_index = j * rows + i
+                right_neighbor = j * rows+ (i + 1) % rows
+                circuit.append(cirq.H(qubits[current_index]))
+                circuit.append(cirq.Y(qubits[current_index]))
+                circuit.append(cirq.X(qubits[right_neighbor]))
+                circuit.append(cirq.CNOT(qubits[current_index], qubits[right_neighbor]))
+    
+        # Add gamma and beta operations to the circuit
+        for index in range(gamma.size):
+            # Add gamma circuit (row-wise interactions)
+            for i in range(0, rows - edge, 2):
+                for j in range(0, cols):
+                    current_index = j * rows + i
+                    right_neighbor = j * rows + (i + 1) % rows
+                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-gamma[index] * 2 / Pi))
+            
+            # Add beta circuit (row-wise interactions)
+            for i in range(1, rows - edge, 2):
+                for j in range(0, cols):
+                    current_index = j * rows + i
+                    right_neighbor = j * rows + (i + 1) % rows
+                    circuit.append(cirq.XX(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[right_neighbor]) ** (-beta[index] * 2 / Pi))
+
+            # Add phi circuit (column-wise interactions)
+            for i in range(0, rows):
+                for j in range(1, cols - edge, 2):
+                    current_index = j * rows + i
+                    down_neighbor = ((j + 1) % cols) * rows + i
+                    circuit.append(cirq.XX(qubits[current_index], qubits[down_neighbor]) ** (-phi[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[down_neighbor]) ** (-phi[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[down_neighbor]) ** (-phi[index] * 2 / Pi))
+                    
+            # Add theta circuit (column-wise interactions)
+            for i in range(0, rows):
+                for j in range(1, cols - edge, 2):
+                    current_index = j * rows + i
+                    down_neighbor = ((j + 1) % cols) * rows + i
+                    circuit.append(cirq.XX(qubits[current_index], qubits[down_neighbor]) ** (-theta[index] * 2 / Pi))
+                    circuit.append(cirq.YY(qubits[current_index], qubits[down_neighbor]) ** (-theta[index] * 2 / Pi))
+                    circuit.append(cirq.ZZ(qubits[current_index], qubits[down_neighbor]) ** (-theta[index] * 2 / Pi))
+                    
+        # Store circuit, qubits, gamma, beta, phi and theta parameters
+        self.circuit = circuit
+        self.qubits = qubits
+        self.gamma = gamma
+        self.beta = beta
+        self.phi = phi
+        self.theta = theta
+        
+    def circuit_to_latex_using_qcircuit(self):
+        # Convert the circuit to LaTeX format using QCircuit
+        return cirq.contrib.circuit_to_latex_using_qcircuit(
+            self.circuit, self.qubits
+        ) 
 # class AnzatsAFMHeisenbergLattice():
 #     def __init__(self, function_args, gamma, beta):
 #         length = function_args.length

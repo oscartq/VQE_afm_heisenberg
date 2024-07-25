@@ -2,7 +2,7 @@ import cirq
 import openfermion as of
 import numpy as np
 import datetime
-from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenbergLattice, AnzatsAFMHeisenbergLattice_3p
+from anzats import Anzats, AnzatsAFMHeisenberg, AnzatsAFMHeisenbergLattice_grid
 import qsimcirq
 
 class AFMHeisenbergLatticeArgs():
@@ -12,18 +12,14 @@ class AFMHeisenbergLatticeArgs():
         self.qsim_option = qsim_option
         self.periodic = periodic
 
-def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta, phi=None):
+def get_expectation_afm_heisenberg_lattice(function_args, gamma, beta, phi):
     # Variables from function_args
     rows = function_args.rows
     cols = function_args.cols
     periodic = function_args.periodic
     
-    if phi is None:
-        # Create an instance of the AnzatsAFMHeisenbergLattice class
-        anzats = AnzatsAFMHeisenbergLattice(function_args.rows, function_args.cols, gamma, beta, periodic)
-    else:
-        # Create an instance of the AnzatsAFMHeisenbergLattice_3p class
-        anzats = AnzatsAFMHeisenbergLattice_3p(function_args.rows, function_args.cols, gamma, beta, phi, periodic)
+    # Create an instance of the AnzatsAFMHeisenbergLattice_3p class
+    anzats = AnzatsAFMHeisenbergLattice_grid(function_args.rows, function_args.cols, gamma, beta, phi, periodic)
     
     # Extract the circuit and qubits from the anzats object
     circuit = anzats.circuit
