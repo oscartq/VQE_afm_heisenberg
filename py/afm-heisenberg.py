@@ -13,7 +13,6 @@ from expectation import get_expectation_afm_heisenberg, AFMHeisenbergArgs
 from optimization import optimize_by_gradient_descent_multiprocess, optimize_by_gradient_descent, optimize_by_lbfgsb
 
 def main(): #Main function
-    optmization = "scipy" #gradient-descent or scipy
     
     output_file_prefix = "afm-heisenberg"
   
@@ -26,6 +25,7 @@ def main(): #Main function
     delta_gamma = config[output_file_prefix]["delta_gamma"]
     delta_beta = config[output_file_prefix]["delta_beta"]
     iteration = config[output_file_prefix]["iteration"]
+    optimization = config[output_file_prefix]["optimization"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
 
     if not os.path.exists(results_dir_path):
@@ -44,7 +44,7 @@ def main(): #Main function
     # Start time
     start_time = time.time()
     
-    if optmization == "gradient-descent":
+    if optimization == "gradient-descent":
         print('Running Gradient Descent optimizer')
         pool = mp.Pool(4)
 
@@ -86,7 +86,7 @@ def main(): #Main function
         pool.close()
         pool.join()
         
-    elif optmization == "scipy":
+    elif optimization == "scipy":
         print('Running Scipy optimizer')
         # Run for p and l
         for p in p_list:
@@ -116,7 +116,7 @@ def main(): #Main function
                     figure=True,
                     filepath=csvpath)
     else:
-        print(f'Error no optmization method named {optmization} available')
+        print(f'Error no optmization method named {optimization} available')
         
     # End time
     end_time = time.time()

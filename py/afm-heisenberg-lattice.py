@@ -9,9 +9,7 @@ from anzats import Anzats
 from expectation import get_expectation_afm_heisenberg_lattice, AFMHeisenbergLatticeArgs
 from optimization import optimize_by_lbfgsb
 
-def main():
-    periodic = False #PBC = True, OBC = False
-    
+def main():    
     output_file_prefix = "afm-heisenberg-lattice"
     
     with open(".toml", mode="rb") as f:
