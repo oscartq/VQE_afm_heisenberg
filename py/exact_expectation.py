@@ -68,6 +68,37 @@ def get_exact_expectation_afm_heisenberg_lattice(rows, cols, periodic=True):
 
     return energy, state
 
+def get_exact_expectation_afm_heisenberg_matrix(length, width, periodic=True):
+    
+    ham = of.ops.QubitOperator()
+
+    edge = 1-1 if periodic else 1-0
+    # row
+    for i in range(length-edge):
+        for j in range(width):
+            current_index = j * length + i
+            right_neighbor = j * length + (i + 1) % length
+            ham += of.ops.QubitOperator(((current_index, "X"), (right_neighbor, "X")))
+            ham += of.ops.QubitOperator(((current_index, "Y"), (right_neighbor, "Y")))
+            ham += of.ops.QubitOperator(((current_index, "Z"), (right_neighbor, "Z")))
+
+    # column
+    for i in range(length):
+        for j in range(width-edge):
+            current_index = j * length + i
+            down_neighbor = ((j + 1) % width) * length + i 
+            ham += of.ops.QubitOperator(((current_index, "X"), (down_neighbor, "X")))
+            ham += of.ops.QubitOperator(((current_index, "Y"), (down_neighbor, "Y")))
+            ham += of.ops.QubitOperator(((current_index, "Z"), (down_neighbor, "Z")))
+
+    sparse_ham = of.linalg.get_sparse_operator(ham)
+
+    energy, state = of.linalg.get_ground_state(
+        sparse_ham, initial_guess=None
+    )
+
+    return energy, state
+
 def main():
     """outputs exact energies on model parameters
     1. select a function model 

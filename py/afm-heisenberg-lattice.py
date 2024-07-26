@@ -15,9 +15,9 @@ def main():
     with open(".toml", mode="rb") as f:
         config = tomllib.load(f)
 
-    length_list = config[output_file_prefix]["length_list"]
-    p_list = config[output_file_prefix]["p_list"]
     rows_list = config[output_file_prefix]["rows_list"]
+    cols_list = config[output_file_prefix]["cols_list"]
+    p_list = config[output_file_prefix]["p_list"]
     boundary_condition = config[output_file_prefix]["boundary_condition"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
     
@@ -52,30 +52,32 @@ def main():
         initial_beta = np.array([0.6 for _ in range(p)])
         initial_phi = np.array([0.6 for _ in range(p)])
         
-        for length in length_list:
-            qsim_option = {'t': int(length / 2), 'f': 1}
-            csvpath = os.path.join(results_dir_path, '{}_l{:02}_p{}_{}.csv'.format(output_file_prefix, length, p, ymdhms))
-            tomlpath = os.path.join(results_dir_path, '{}_l{:02}_p{}_{}.toml'.format(output_file_prefix, length, p, ymdhms))
+        rows = rows_list[0]
+        cols = cols_list[0]
+        length = rows*cols
+        
+        qsim_option = {'t': int(length / 2), 'f': 1}
+        csvpath = os.path.join(results_dir_path, '{}_l{:02}_p{}_{}.csv'.format(output_file_prefix, length, p, ymdhms))
+        tomlpath = os.path.join(results_dir_path, '{}_l{:02}_p{}_{}.toml'.format(output_file_prefix, length, p, ymdhms))
 
-            with open(tomlpath, mode='a') as f:
-                f.write("length       ={}\n".format(length))
-                f.write("p            ={}\n".format(p))
-                f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
-                f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
-                f.write("initial_phi ={}\n".format("[" + ", ".join(str(value) for value in initial_phi.tolist()) + "]"))
-                # f.write("iteration    ={}\n".format(iteration))
+        with open(tomlpath, mode='a') as f:
+            f.write("length       ={}x{}\n".format(rows, cols))
+            f.write("p            ={}\n".format(p))
+            f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
+            f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
+            f.write("initial_phi ={}\n".format("[" + ", ".join(str(value) for value in initial_phi.tolist()) + "]"))
+        
+        function_args = AFMHeisenbergLatticeArgs(rows, cols, periodic, qsim_option)
 
-            function_args = AFMHeisenbergLatticeArgs(int(length/rows_list[0]), rows_list[0], periodic, qsim_option)
-
-            gamma, beta, phi = optimize_by_lbfgsb(
-                function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),
-                initial_gamma=initial_gamma,
-                initial_beta=initial_beta,
-                initial_phi=initial_phi,
-                bounds=None, #[(0, 1)] * (3 * p),
-                parameters=3,
-                figure=True,
-                filepath=csvpath)
+        gamma, beta, phi = optimize_by_lbfgsb(
+            function=partial(get_expectation_afm_heisenberg_lattice, function_args=function_args),
+            initial_gamma=initial_gamma,
+            initial_beta=initial_beta,
+            initial_phi=initial_phi,
+            bounds=None, #[(0, 1)] * (3 * p),
+            parameters=3,
+            figure=True,
+            filepath=csvpath)
                 
     # End time
     end_time = time.time()
