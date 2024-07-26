@@ -1,6 +1,8 @@
 .ignore
 .ignore/
 #.results/
+.old/
+.misc/
 .toml
 *.toml
 .DS_Store
