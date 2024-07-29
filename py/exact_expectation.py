@@ -1,10 +1,7 @@
 import cirq
 import openfermion as of
 import numpy as np
-import datetime
 from itertools import product
-from anzats import Anzats, AnzatsAFMHeisenberg
-from expectation import AFMHeisenbergArgs
 
 def run_exact_expectation_state(file_prefix, length, width, periodic=True):
 

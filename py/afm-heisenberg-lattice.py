@@ -2,6 +2,7 @@ import os
 import shutil
 import datetime
 import time
+import random
 from functools import partial
 import tomllib
 import numpy as np
@@ -51,10 +52,10 @@ def main():  # Main function
     print('Running Scipy optimizer')
     # Loop over values of p
     for p in p_list:
-        # Initialize parameters
-        initial_gamma = np.array([0.6 for _ in range(p)])
-        initial_beta = np.array([0.6 for _ in range(p)])
-        initial_phi = np.array([0.6 for _ in range(p)])
+        # Initialize parameters with random values
+        initial_gamma = np.array([random.uniform(0, 1) for _ in range(p)]) #initial_gamma = np.array([0.6 for _ in range(p)])
+        initial_beta = np.array([random.uniform(0, 1) for _ in range(p)]) #initial_beta = np.array([0.6 for _ in range(p)])
+        initial_phi = np.array([random.uniform(0, 1) for _ in range(p)]) #initial_phi = np.array([0.6 for _ in range(p)])
         
         rows = rows_list[0]
         cols = cols_list[0]

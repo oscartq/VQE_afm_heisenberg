@@ -125,9 +125,14 @@ for i, number_l in enumerate(number_l_list):
                          label=f'L = {number_l}, p = {number_p}')
 
 # Add the exact solution line
+if csv_prefix == "afm-heisenberg-matrix":
+    for number_l in number_l_list:
+        exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice( rows_list[0],int(number_l / rows_list[0]), periodic)
+        plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
+
 if csv_prefix == "afm-heisenberg-lattice":
     for number_l in number_l_list:
-        exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice(int(number_l / rows_list[0]), rows_list[0], periodic)
+        exact_energy, _ = get_exact_expectation_afm_heisenberg_lattice( rows_list[0],int(number_l / rows_list[0]), periodic)
         plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
         
 elif csv_prefix == "afm-heisenberg":

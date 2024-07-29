@@ -24,8 +24,18 @@ def main():  # Main function
     delta_beta = config[output_file_prefix]["delta_beta"]
     iteration = config[output_file_prefix]["iteration"]
     optimization = config[output_file_prefix]["optimization"]
+    boundary_condition = config[output_file_prefix]["boundary_condition"]
     results_dir_path = config[output_file_prefix]["results_dir_path"]    
 
+    # Set boundary condition: Periodic (PBC) or Open (OBC)
+    if boundary_condition == "PBC":
+        periodic = True
+    elif boundary_condition == "OBC":
+        periodic = False
+    else:
+        periodic = False
+        print(f'{boundary_condition} not valid boundary condition, using OBC.')
+    
     # Create results directory if it doesn't exist, or clear it if it does
     if not os.path.exists(results_dir_path):
         os.mkdir(results_dir_path)
@@ -68,7 +78,7 @@ def main():  # Main function
                     f.write("delta_beta   ={}\n".format(delta_beta))
                     f.write("iteration    ={}\n".format(iteration))
 
-                function_args = AFMHeisenbergArgs(length, qsim_option)  # Create function arguments
+                function_args = AFMHeisenbergArgs(length, periodic, qsim_option)  # Create function arguments
 
                 # Perform optimization using gradient descent
                 gamma, beta = optimize_by_gradient_descent_multiprocess(
@@ -105,14 +115,14 @@ def main():  # Main function
                     f.write("initial_gamma={}\n".format("[" + ", ".join(str(value) for value in initial_gamma.tolist()) + "]"))
                     f.write("initial_beta ={}\n".format("[" + ", ".join(str(value) for value in initial_beta.tolist()) + "]"))
 
-                function_args = AFMHeisenbergArgs(length, qsim_option)  # Create function arguments
+                function_args = AFMHeisenbergArgs(length, periodic, qsim_option)  # Create function arguments
 
                 # Perform optimization using Scipy's L-BFGS-B algorithm
                 gamma, beta = optimize_by_lbfgsb(
                     function=partial(get_expectation_afm_heisenberg, function_args=function_args),
                     initial_gamma=initial_gamma,
                     initial_beta=initial_beta,
-                    bounds=[(0, 1)] * (2 * p),
+                    bounds=None, #[(0, 1)] * (2 * p),
                     print_results=True,
                     filepath=csvpath)
     else:
