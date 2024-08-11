@@ -27,10 +27,13 @@ with open(os.path.join(os.path.dirname(sys.argv[0]), 'graphics.toml'), 'r') as f
     
     if boundary_condition == "PBC":
         periodic = True
+        BC = "PBC"
     elif boundary_condition == "OBC":
         periodic = False
+        BC = "OBC"
     else:
         periodic = False
+        BC = "OBC"
         print(f'{boundary_condition} not valid boundary condition, using OBC.')    
         
 if not os.path.exists(save_fig_directory):
@@ -139,11 +142,11 @@ elif csv_prefix == "afm-heisenberg":
     for number_l in number_l_list:
         exact_energy, _ = get_exact_expectation_afm_heisenberg(number_l, periodic)
         plt.axhline(y=exact_energy, color='r', linestyle='--', label=f'Exact solution L = {number_l}')
-        
+
 plt.tick_params(axis='both', labelsize=16)
 plt.xlabel('Iteration', fontsize=20)
 plt.ylabel('Energy', fontsize=20)
-plt.title(f'Energy convergence \n {rows_list[0]}x{int(number_l / rows_list[0])} Heisenberg model')
+plt.title(f'Energy convergence \n {rows_list[0]}x{int(number_l / rows_list[0])} Heisenberg model {BC}')
 plt.legend(fontsize=10)
 plt.grid(True)
 

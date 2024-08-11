@@ -9,7 +9,7 @@ import sympy
 Pi=np.pi
 
 def main():
-    output_file_prefix = "4-5_afm-heisenberg"  # Prefix for output files
+    output_file_prefix = "afm-heisenberg"  # Prefix for output files
 
     # Load configuration from a TOML file
     with open(".toml", mode="rb") as f:
